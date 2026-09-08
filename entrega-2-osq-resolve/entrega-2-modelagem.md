@@ -1,11 +1,4 @@
-# Entrega 2 – Modelagem do Software e do Banco de Dados
-
-**Projeto:** OSQ Resolve – Plataforma de Suporte Técnico
-**Disciplina:** Gestão de Projetos – Unicesumar
-**Professora:** Nicole Aires
-**Aluno:** Lucas Teixeira Dobis — RA: 25161083-2
-**Data:** 08/09/2026
-
+# Entrega 2
 ---
 
 ## 1. Escopo do sistema
@@ -18,15 +11,14 @@ Esta entrega parte da versão consolidada dos requisitos funcionais (RF), não f
 
 ## 2. Histórico de alterações em relação à Entrega 1
 
-A partir da devolutiva da Entrega 1, dada pela professora em aula, a equipe revisou dois pontos do documento: a concordância textual/gramatical e a redação dos requisitos funcionais. Na revisão dos requisitos, identificou-se que o **RF06** reunia duas classificações distintas (categoria e prioridade) em um único requisito, e que faltava um requisito funcional específico para o **cancelamento de chamados** — ação já prevista na regra de negócio RN10, mas sem um RF correspondente. As correções abaixo foram aplicadas.
+A partir da devolutiva da Entrega 1, dada pela professora em aula, a equipe revisou dois pontos do documento: a concordância textual/gramatical e a redação dos requisitos funcionais. Na revisão dos requisitos, identificou-se que o RF06 reunia duas classificações distintas (categoria e prioridade) em um único requisito, e que faltava um requisito funcional específico para o cancelamento de chamados — ação já prevista na regra de negócio RN10, mas sem um RF correspondente. As correções abaixo foram aplicadas.
 
-| Data | Item | Alteração | Motivo |
-|---|---|---|---|
-| 08/09/2026 | RF06 | Separado em RF06 e RF15 | O requisito reunia duas classificações distintas (categoria e prioridade) |
-| 08/09/2026 | RF15 (novo) | Criado "Classificação por prioridade: baixa, média, alta, crítica" | Desmembrado do RF06 original |
-| 08/09/2026 | RF16 (novo) | Incluído "Cancelamento de chamados: permitir que o solicitante cancele um chamado antes de resolvido/fechado, mediante justificativa" | RN10 já previa a regra, mas não havia requisito funcional correspondente |
-| 08/09/2026 | Concordância | Revisão de concordância textual/gramatical ao longo do Documento de Visão e Requisitos | Apontado na devolutiva da professora |
-
+| Item | Alteração | Motivo |
+|---|---|---|
+| RF06 | Separado em RF06 e RF15 | O requisito reunia duas classificações distintas (categoria e prioridade) |
+| RF15 (novo) | Criado "Classificação por prioridade: baixa, média, alta, crítica" | Desmembrado do RF06 original |
+| RF16 (novo) | Incluído "Cancelamento de chamados: permitir que o solicitante cancele um chamado antes de resolvido/fechado, mediante justificativa" | RN10 já previa a regra, mas não havia requisito funcional correspondente |
+| Concordância | Revisão de concordância textual/gramatical ao longo do Documento de Visão e Requisitos | Apontado na devolutiva da professora |
 ---
 
 ## 3. Diagrama de casos de uso
@@ -309,7 +301,6 @@ A matriz conecta cada requisito funcional ao caso de uso correspondente, às ent
 | RF13 – Acesso | Autenticar-se | USUARIO | Login |
 | RF14 – Anexos | Anexar arquivo | ANEXO, CHAMADO | Detalhes do chamado |
 | RF16 – Cancelamento de chamados | UC10 – Cancelar chamado | CHAMADO, HISTORICO | Detalhes do chamado |
-
 ---
 
 ## 10. Revisão cruzada dos modelos
@@ -320,17 +311,3 @@ A matriz conecta cada requisito funcional ao caso de uso correspondente, às ent
 - As chaves estrangeiras do modelo lógico refletem os relacionamentos definidos no modelo conceitual (setor, categoria, prioridade, equipamento e técnico em relação a chamado).
 - Os fluxos de atividades respeitam as regras de negócio de transição de status (RN04), atribuição (RN03), fechamento (RN06) e reabertura (RN13).
 - É possível explicar o caminho requisito → caso de uso → processo → dados → futura tela para todos os RF, conforme demonstrado na matriz de rastreabilidade.
-
----
-
-## 11. Checklist da Entrega 2
-
-- [x] Entrega 1 revisada; histórico de alterações incluso (pendente apenas a devolutiva da professora)
-- [x] Diagrama de casos de uso legível, com atores e relacionamentos include
-- [x] Cinco casos de uso especificados com fluxo principal, alternativo e pós-condição
-- [x] Dois diagramas de atividades cobrindo os processos centrais do sistema
-- [x] Modelo conceitual com entidades, atributos, relacionamentos e cardinalidades
-- [x] Modelo lógico com tabelas, PK, FK, tipos e restrições
-- [x] Dicionário de dados coerente com o modelo lógico
-- [x] Matriz de rastreabilidade conectando requisitos, casos de uso, entidades e telas
-- [x] Revisão final de nomenclatura e coerência entre os artefatos

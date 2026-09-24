@@ -1,0 +1,209 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Enums ----------
+
+enum Perfil {
+  SOLICITANTE
+  TECNICO
+  ADMIN
+}
+
+enum Categoria {
+  HARDWARE
+  SOFTWARE
+  REDE
+  ACESSO
+  OUTROS
+}
+
+enum Prioridade {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum StatusChamado {
+  ABERTO
+  EM_ANDAMENTO
+  AGUARDANDO
+  RESOLVIDO
+  FECHADO
+  CANCELADO
+}
+
+enum TipoHistorico {
+  CRIACAO
+  MUDANCA_STATUS
+  ATRIBUICAO
+  FOLLOWUP
+  REABERTURA
+  CANCELAMENTO
+}
+
+// ---------- Multitenancy (RNF08) ----------
+
+model Organizacao {
+  id        String   @id @default(uuid())
+  nome      String
+  ativa     Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+
+  setores       Setor[]
+  usuarios      Usuario[]
+  equipamentos  Equipamento[]
+  chamados      Chamado[]
+  slas          Sla[]
+}
+
+// ---------- Cadastros (RF01-RF04) ----------
+
+model Setor {
+  id             String  @id @default(uuid())
+  organizacaoId  String
+  nome           String
+  ativo          Boolean @default(true) // RN11: inativa em vez de excluir
+
+  organizacao   Organizacao   @relation(fields: [organizacaoId], references: [id])
+  usuarios      Usuario[]
+  equipamentos  Equipamento[]
+  chamados      Chamado[]
+
+  @@unique([organizacaoId, nome])
+}
+
+model Usuario {
+  id             String   @id @default(uuid())
+  organizacaoId  String
+  setorId        String?
+  nome           String
+  email          String
+  telefone       String?
+  senhaHash      String
+  perfil         Perfil   @default(SOLICITANTE)
+  especialidade  String? // RF02: preenchido para técnicos
+  ativo          Boolean  @default(true)
+  criadoEm       DateTime @default(now())
+
+  organizacao  Organizacao @relation(fields: [organizacaoId], references: [id])
+  setor        Setor?      @relation(fields: [setorId], references: [id])
+
+  chamadosSolicitados  Chamado[]   @relation("Solicitante")
+  chamadosAtribuidos   Chamado[]   @relation("Tecnico")
+  equipamentos         Equipamento[]
+  historicos           HistoricoChamado[]
+  anexos               Anexo[]
+
+  @@unique([organizacaoId, email])
+}
+
+model Equipamento {
+  id             String  @id @default(uuid())
+  organizacaoId  String
+  setorId        String?
+  usuarioId      String?
+  nome           String
+  patrimonio     String?
+  tipo           String?
+  ativo          Boolean @default(true)
+
+  organizacao  Organizacao @relation(fields: [organizacaoId], references: [id])
+  setor        Setor?      @relation(fields: [setorId], references: [id])
+  usuario      Usuario?    @relation(fields: [usuarioId], references: [id])
+  chamados     Chamado[]
+}
+
+// ---------- SLA (RF09, RN02) ----------
+
+model Sla {
+  id                 String     @id @default(uuid())
+  organizacaoId      String
+  prioridade         Prioridade
+  minutosAtendimento Int
+  minutosResolucao   Int
+
+  organizacao Organizacao @relation(fields: [organizacaoId], references: [id])
+
+  @@unique([organizacaoId, prioridade])
+}
+
+// ---------- Chamados (RF05-RF12) ----------
+
+model Chamado {
+  id             String        @id @default(uuid())
+  numero         Int           @default(autoincrement())
+  organizacaoId  String
+  solicitanteId  String
+  tecnicoId      String?
+  setorId        String
+  equipamentoId  String?
+  titulo         String
+  descricao      String
+  categoria      Categoria
+  prioridade     Prioridade
+  status         StatusChamado @default(ABERTO)
+  prazoResolucao DateTime?
+  abertoEm       DateTime      @default(now())
+  resolvidoEm    DateTime?
+  fechadoEm      DateTime?
+  atualizadoEm   DateTime      @updatedAt
+
+  organizacao  Organizacao  @relation(fields: [organizacaoId], references: [id])
+  solicitante  Usuario      @relation("Solicitante", fields: [solicitanteId], references: [id])
+  tecnico      Usuario?     @relation("Tecnico", fields: [tecnicoId], references: [id])
+  setor        Setor        @relation(fields: [setorId], references: [id])
+  equipamento  Equipamento? @relation(fields: [equipamentoId], references: [id])
+
+  historico  HistoricoChamado[]
+  anexos     Anexo[]
+  avaliacao  Avaliacao?
+
+  @@index([organizacaoId, status])
+  @@index([organizacaoId, tecnicoId])
+}
+
+model HistoricoChamado {
+  id         String        @id @default(uuid())
+  chamadoId  String
+  autorId    String
+  tipo       TipoHistorico
+  conteudo   String?
+  interno    Boolean       @default(false) // RN12: visível só a técnicos/admin
+  criadoEm   DateTime      @default(now())
+
+  chamado Chamado @relation(fields: [chamadoId], references: [id], onDelete: Cascade)
+  autor   Usuario @relation(fields: [autorId], references: [id])
+
+  @@index([chamadoId, criadoEm])
+}
+
+model Anexo {
+  id          String   @id @default(uuid())
+  chamadoId   String
+  enviadoPor  String
+  nomeArquivo String
+  mimeType    String
+  tamanho     Int
+  caminho     String
+  criadoEm    DateTime @default(now())
+
+  chamado Chamado @relation(fields: [chamadoId], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [enviadoPor], references: [id])
+}
+
+model Avaliacao {
+  id        String   @id @default(uuid())
+  chamadoId String   @unique
+  nota      Int // 1 a 5
+  comentario String?
+  criadoEm  DateTime @default(now())
+
+  chamado Chamado @relation(fields: [chamadoId], references: [id])
+}

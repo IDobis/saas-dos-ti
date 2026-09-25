@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AreaChart, BarList, DonutChart } from "@tremor/react";
+import { AreaChart, DonutChart } from "@tremor/react";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -17,6 +17,32 @@ import {
   type Categoria,
   type Status,
 } from "@/lib/chamados";
+
+function BarrasCategoria({
+  itens,
+  animar,
+}: {
+  itens: { name: string; value: number }[];
+  animar: boolean;
+}) {
+  const maior = Math.max(...itens.map((item) => item.value), 1);
+  return (
+    <ul className="grid gap-3">
+      {itens.map((item) => (
+        <li key={item.name} className="grid grid-cols-[7.5rem_1fr_2.5rem] items-center gap-3 text-sm">
+          <span className="truncate text-foreground">{item.name}</span>
+          <span className="h-2.5 overflow-hidden rounded-full bg-muted">
+            <span
+              className={cn("block h-full rounded-full bg-indigo-600 dark:bg-indigo-400", animar && "transition-[width] duration-700")}
+              style={{ width: `${Math.max((item.value / maior) * 100, item.value > 0 ? 2 : 0)}%` }}
+            />
+          </span>
+          <span className="text-right tabular-nums text-foreground">{item.value}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function usePrefereMenosMovimento() {
   const [reduzido, setReduzido] = useState(false);
@@ -201,7 +227,7 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {porCategoria.length ? (
-              <BarList data={porCategoriaVisivel} color="indigo" showAnimation={!semAnimacao} />
+              <BarrasCategoria itens={porCategoriaVisivel} animar={!semAnimacao} />
             ) : (
               <p className="py-6 text-center text-sm text-muted-foreground">Sem chamados ainda.</p>
             )}

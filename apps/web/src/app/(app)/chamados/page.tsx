@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { ChevronDown, ChevronUp, Plus, Search } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Marcador } from "@/components/marcador";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,9 +15,9 @@ import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import {
   PRIORIDADE_LABEL,
-  PRIORIDADE_STYLE,
+  PRIORIDADE_PONTO,
   STATUS_LABEL,
-  STATUS_STYLE,
+  STATUS_PONTO,
   formatarData,
   type Chamado,
   type Prioridade,
@@ -165,10 +165,10 @@ export default function ChamadosPage() {
                           {c.tecnico?.nome ?? "Sem técnico"}
                         </td>
                         <td className="px-4 py-3">
-                          <Badge className={PRIORIDADE_STYLE[c.prioridade]}>{PRIORIDADE_LABEL[c.prioridade]}</Badge>
+                          <Marcador cor={PRIORIDADE_PONTO[c.prioridade]}>{PRIORIDADE_LABEL[c.prioridade]}</Marcador>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge className={STATUS_STYLE[c.status]}>{STATUS_LABEL[c.status]}</Badge>
+                          <Marcador cor={STATUS_PONTO[c.status]}>{STATUS_LABEL[c.status]}</Marcador>
                         </td>
                         <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                           {formatarData(c.abertoEm)}

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Lock, Star } from "lucide-react";
+import { Marcador } from "@/components/marcador";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,9 +17,9 @@ import { useAuth } from "@/lib/auth";
 import {
   CATEGORIA_LABEL,
   PRIORIDADE_LABEL,
-  PRIORIDADE_STYLE,
+  PRIORIDADE_PONTO,
   STATUS_LABEL,
-  STATUS_STYLE,
+  STATUS_PONTO,
   formatarDataHora,
   type ChamadoDetalhe,
   type Status,
@@ -111,8 +112,8 @@ export default function ChamadoDetalhePage() {
           <p className="font-mono text-sm text-muted-foreground">#{c.numero}</p>
           <h1 className="text-xl font-semibold">{c.titulo}</h1>
           <div className="mt-2 flex flex-wrap gap-2">
-            <Badge className={STATUS_STYLE[c.status]}>{STATUS_LABEL[c.status]}</Badge>
-            <Badge className={PRIORIDADE_STYLE[c.prioridade]}>{PRIORIDADE_LABEL[c.prioridade]}</Badge>
+            <Marcador cor={STATUS_PONTO[c.status]}>{STATUS_LABEL[c.status]}</Marcador>
+            <Marcador cor={PRIORIDADE_PONTO[c.prioridade]}>{PRIORIDADE_LABEL[c.prioridade]}</Marcador>
             <Badge variant="outline">{CATEGORIA_LABEL[c.categoria]}</Badge>
           </div>
         </div>

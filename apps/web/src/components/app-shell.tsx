@@ -7,13 +7,14 @@ import { LayoutRouterContext } from "next/dist/shared/lib/app-router-context.sha
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { LayoutDashboard, LogOut, Menu, Moon, PlusCircle, Sun, Ticket, Users, X } from "lucide-react";
+import { LayoutDashboard, LogOut, Menu, Moon, PlusCircle, Shuffle, Sun, Ticket, Users, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -161,85 +162,124 @@ function DemoButton() {
         Demo
       </Button>
       <Dialog open={aberto} onOpenChange={setAberto}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Dados de teste</DialogTitle>
-            <DialogDescription>
-              Escolha o intervalo de meses e quantos chamados criar em cada status. A soma não passa de {LIMITE_DEMO}.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="grid gap-1.5 text-sm">
-              Mês inicial
+        <DialogContent className="gap-0 p-0 sm:max-w-md">
+          <div className="grid gap-5 p-5">
+            <DialogHeader className="pr-8">
+              <DialogTitle>Dados de teste</DialogTitle>
+              <DialogDescription>Distribua até {LIMITE_DEMO} chamados no período e nos status.</DialogDescription>
+            </DialogHeader>
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
               <input
+                aria-label="Mês inicial"
                 type="month"
                 value={de}
                 max={ate || MES_ATUAL}
                 onChange={(e) => setDe(e.target.value)}
-                className="h-9 rounded-lg border border-input bg-transparent px-3 dark:bg-input/30"
+                className="h-9 rounded-lg border border-input bg-card px-3 text-sm dark:bg-input/30"
               />
-            </label>
-            <label className="grid gap-1.5 text-sm">
-              Mês final
+              <span className="text-xs text-muted-foreground">até</span>
               <input
+                aria-label="Mês final"
                 type="month"
                 value={ate}
                 min={de}
                 max={MES_ATUAL}
                 onChange={(e) => setAte(e.target.value)}
-                className="h-9 rounded-lg border border-input bg-transparent px-3 dark:bg-input/30"
+                className="h-9 rounded-lg border border-input bg-card px-3 text-sm dark:bg-input/30"
               />
-            </label>
+            </div>
+            <div className="grid gap-4">
+              <div className="flex items-baseline justify-between">
+                <p className="text-2xl font-semibold tabular-nums tracking-tight">{total}</p>
+                <p className="text-sm text-muted-foreground">de {LIMITE_DEMO}</p>
+              </div>
+              <MedidorDemo qtd={qtd} />
+              <div className="grid gap-3">
+                <BarraDemo tom="indigo" rotulo="Abertos" valor={qtd.abertos} onChange={(v) => definir("abertos", v)} />
+                <BarraDemo tom="amber" rotulo="Em andamento" valor={qtd.emAndamento} onChange={(v) => definir("emAndamento", v)} />
+                <BarraDemo tom="slate" rotulo="Resolvidos" valor={qtd.resolvidos} onChange={(v) => definir("resolvidos", v)} />
+                <BarraDemo
+                  tom="violet"
+                  rotulo="Outros status"
+                  detalhe="Aguardando, fechados e cancelados"
+                  valor={qtd.resto}
+                  onChange={(v) => definir("resto", v)}
+                />
+              </div>
+            </div>
           </div>
-          <div className="grid gap-3">
-            <BarraDemo rotulo="Abertos" valor={qtd.abertos} onChange={(v) => definir("abertos", v)} />
-            <BarraDemo rotulo="Em andamento" valor={qtd.emAndamento} onChange={(v) => definir("emAndamento", v)} />
-            <BarraDemo rotulo="Resolvidos" valor={qtd.resolvidos} onChange={(v) => definir("resolvidos", v)} />
-            <BarraDemo
-              rotulo="Outros status"
-              detalhe="Aguardando, fechados e cancelados"
-              valor={qtd.resto}
-              onChange={(v) => definir("resto", v)}
-            />
-          </div>
-          <div className="flex items-center justify-between gap-3 border-t pt-3">
-            <p className="text-sm text-muted-foreground">{total} de {LIMITE_DEMO}</p>
-            <Button variant="outline" size="sm" onClick={() => setQtd(randomizarDemo())} disabled={carregando !== null}>
-              Randomizar
+          <DialogFooter className="mx-0 mb-0 sm:justify-between">
+            <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={remover} disabled={carregando !== null}>
+              {carregando === "remover" ? "Apagando..." : "Apagar testes"}
             </Button>
-          </div>
-          <Button onClick={gerar} disabled={carregando !== null || total < 1 || !de || !ate || de > ate}>
-            {carregando === "gerar" ? "Gerando..." : "Gerar chamados de teste"}
-          </Button>
-          <div className="grid gap-2 border-t pt-3">
-            <p className="text-sm text-muted-foreground">Apaga só os chamados marcados como teste.</p>
-            <Button variant="destructive" onClick={remover} disabled={carregando !== null}>
-              {carregando === "remover" ? "Apagando..." : "Apagar dados de teste"}
-            </Button>
-          </div>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setQtd(randomizarDemo())} disabled={carregando !== null}>
+                <Shuffle />
+                Misturar
+              </Button>
+              <Button onClick={gerar} disabled={carregando !== null || total < 1 || !de || !ate || de > ate}>
+                {carregando === "gerar" ? "Gerando..." : "Gerar"}
+              </Button>
+            </div>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   );
 }
 
+const TOM_DEMO = {
+  indigo: { ponto: "bg-indigo-600 dark:bg-indigo-400", acento: "accent-indigo-600 dark:accent-indigo-400" },
+  amber: { ponto: "bg-amber-500", acento: "accent-amber-500" },
+  slate: { ponto: "bg-slate-500 dark:bg-slate-300", acento: "accent-slate-500 dark:accent-slate-300" },
+  violet: { ponto: "bg-violet-500", acento: "accent-violet-500" },
+} as const;
+
+function MedidorDemo({ qtd }: { qtd: QuantidadesDemo }) {
+  const partes = [
+    { valor: qtd.abertos, tom: "indigo" },
+    { valor: qtd.emAndamento, tom: "amber" },
+    { valor: qtd.resolvidos, tom: "slate" },
+    { valor: qtd.resto, tom: "violet" },
+  ] as const;
+  return (
+    <div className="flex h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+      {partes.map((parte) =>
+        parte.valor > 0 ? (
+          <div
+            key={parte.tom}
+            className={TOM_DEMO[parte.tom].ponto}
+            style={{ width: `${(parte.valor / LIMITE_DEMO) * 100}%` }}
+          />
+        ) : null,
+      )}
+    </div>
+  );
+}
+
 function BarraDemo({
+  tom,
   rotulo,
   detalhe,
   valor,
   onChange,
 }: {
+  tom: keyof typeof TOM_DEMO;
   rotulo: string;
   detalhe?: string;
   valor: number;
   onChange: (valor: number) => void;
 }) {
+  const { ponto, acento } = TOM_DEMO[tom];
   return (
     <label className="grid gap-1.5 text-sm">
-      <span className="flex items-baseline justify-between gap-3">
-        <span>
-          {rotulo}
-          {detalhe && <span className="mt-0.5 block text-xs text-muted-foreground">{detalhe}</span>}
+      <span className="flex items-center justify-between gap-3">
+        <span className="flex items-center gap-2">
+          <span className={cn("size-2 shrink-0 rounded-full", ponto)} />
+          <span>
+            {rotulo}
+            {detalhe && <span className="block text-xs text-muted-foreground">{detalhe}</span>}
+          </span>
         </span>
         <span className="tabular-nums text-muted-foreground">{valor}</span>
       </span>
@@ -249,7 +289,7 @@ function BarraDemo({
         max={LIMITE_DEMO}
         value={valor}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-2 w-full cursor-pointer accent-foreground"
+        className={cn("h-1.5 w-full cursor-pointer", acento)}
       />
     </label>
   );

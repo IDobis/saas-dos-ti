@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { Perfil } from '@prisma/client';
 import { CurrentUser, Roles, UsuarioLogado } from '../common/auth';
 import {
   AtribuirDto,
   AvaliarDto,
   CriarChamadoDto,
+  DemoDto,
   FiltroChamadosDto,
   FollowUpDto,
   MudarStatusDto,
@@ -24,6 +25,18 @@ export class ChamadosController {
   @Post()
   criar(@CurrentUser() user: UsuarioLogado, @Body() dto: CriarChamadoDto) {
     return this.service.criar(user, dto);
+  }
+
+  @Roles(Perfil.ADMIN)
+  @Post('demo')
+  seedDemo(@CurrentUser() user: UsuarioLogado, @Body() dto: DemoDto) {
+    return this.service.seedDemo(user, dto);
+  }
+
+  @Roles(Perfil.ADMIN)
+  @Delete('demo')
+  removerDemo(@CurrentUser() user: UsuarioLogado) {
+    return this.service.removerDemo(user);
   }
 
   @Get(':id')

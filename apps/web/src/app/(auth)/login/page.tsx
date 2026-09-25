@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -49,8 +50,10 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
       <div className="w-full max-w-sm">
         <div className="mb-6">
-          <h1 className="text-xl font-semibold">SaaS dos TI</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <h1>
+            <Logo markClassName="size-11" className="text-xl" />
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             {modo === "entrar" ? "Acesso ao sistema de chamados" : "Cadastro da organização"}
           </p>
         </div>

@@ -89,11 +89,11 @@ export default function ChamadoDetalhePage() {
 
   const souSolicitante = c.solicitante.id === usuario.id;
   const encerrado = c.status === "FECHADO" || c.status === "CANCELADO";
-  const proximos = PROXIMOS[c.status].filter((s) =>
-    ehEquipe ? true : souSolicitante && (s === "CANCELADO" || s === "FECHADO"),
-  );
+  // Solicitante só cancela; fechar é exclusivo da equipe, e após resolvido ele não atualiza mais (RN09)
+  const proximos = PROXIMOS[c.status].filter((s) => (ehEquipe ? true : souSolicitante && s === "CANCELADO"));
   const podeAvaliar = souSolicitante && !c.avaliacao && (c.status === "RESOLVIDO" || c.status === "FECHADO");
   const podeReabrir = ehEquipe && (c.status === "RESOLVIDO" || c.status === "FECHADO");
+  const podeComentar = ehEquipe ? !encerrado : !encerrado && c.status !== "RESOLVIDO";
 
   const mudarStatus = (status: Status) => {
     if (status === "CANCELADO") return setAcaoJust("cancelar");
@@ -196,7 +196,7 @@ export default function ChamadoDetalhePage() {
                 ))}
               </ol>
 
-              {!encerrado && (
+              {podeComentar && (
                 <form
                   className="mt-6 grid gap-3 border-t pt-4"
                   onSubmit={(e) => {

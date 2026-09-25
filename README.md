@@ -1,4 +1,4 @@
-# SaaS dos TI
+# OSQ-Resolve
 
 Sistema de chamados para suporte de tecnologia (help desk / service desk).
 
@@ -11,3 +11,7 @@ A modelagem do fluxo e do inventário básico se inspira no [GLPI](https://glpi-
 - [Requisitos funcionais](docs/requisitos-funcionais.md)
 - [Requisitos não funcionais](docs/requisitos-nao-funcionais.md)
 - [Regras de negócio](docs/regras-de-negocio.md)
+- [Diagrama de classes](docs/diagrama-de-classes.md)
+- [Diagrama de casos de uso](docs/diagrama-casos-de-uso.md)
+- [Diagramas de atividades](docs/diagrama-atividades.md)
+- [Modelo conceitual](docs/modelo-conceitual.md)

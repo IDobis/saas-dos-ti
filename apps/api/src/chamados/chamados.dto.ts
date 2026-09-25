@@ -4,6 +4,7 @@ import {
   IsBoolean,
   IsEnum,
   IsInt,
+  Matches,
   IsOptional,
   IsString,
   IsUUID,
@@ -92,6 +93,28 @@ export class AvaliarDto {
 
   @IsOptional() @IsString() @MaxLength(1000)
   comentario?: string;
+}
+
+export class DemoDto {
+  @IsInt() @Min(0) @Max(300) @Type(() => Number)
+  abertos!: number;
+
+  @IsInt() @Min(0) @Max(300) @Type(() => Number)
+  resolvidos!: number;
+
+  @IsInt() @Min(0) @Max(300) @Type(() => Number)
+  emAndamento!: number;
+
+  @IsInt() @Min(0) @Max(300) @Type(() => Number)
+  resto!: number;
+
+  /** Mês inicial, no formato AAAA-MM. */
+  @IsString() @Matches(/^\d{4}-(0[1-9]|1[0-2])$/)
+  de!: string;
+
+  /** Mês final, no formato AAAA-MM. */
+  @IsString() @Matches(/^\d{4}-(0[1-9]|1[0-2])$/)
+  ate!: string;
 }
 
 export class ReabrirDto {

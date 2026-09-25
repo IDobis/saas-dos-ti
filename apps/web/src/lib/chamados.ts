@@ -79,19 +79,19 @@ export const CATEGORIA_LABEL: Record<Categoria, string> = {
 };
 
 export const STATUS_STYLE: Record<Status, string> = {
-  ABERTO: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
-  EM_ANDAMENTO: "bg-violet-500/15 text-violet-700 dark:text-violet-300",
-  AGUARDANDO: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  RESOLVIDO: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
-  FECHADO: "bg-slate-500/15 text-slate-700 dark:text-slate-300",
-  CANCELADO: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+  ABERTO: "bg-slate-200 text-slate-900! dark:bg-indigo-500/15 dark:text-indigo-300!",
+  EM_ANDAMENTO: "bg-slate-300 text-slate-950! dark:bg-violet-500/15 dark:text-violet-300!",
+  AGUARDANDO: "bg-amber-100 text-amber-950! dark:bg-amber-500/15 dark:text-amber-300!",
+  RESOLVIDO: "bg-emerald-100 text-emerald-950! dark:bg-emerald-500/15 dark:text-emerald-300!",
+  FECHADO: "bg-neutral-200 text-neutral-900! dark:bg-slate-500/15 dark:text-slate-300!",
+  CANCELADO: "bg-rose-100 text-rose-950! dark:bg-rose-500/15 dark:text-rose-300!",
 };
 
 export const PRIORIDADE_STYLE: Record<Prioridade, string> = {
-  BAIXA: "bg-slate-500/15 text-slate-700 dark:text-slate-300",
-  MEDIA: "bg-blue-500/15 text-blue-700 dark:text-blue-300",
-  ALTA: "bg-amber-500/15 text-amber-700 dark:text-amber-300",
-  CRITICA: "bg-rose-500/15 text-rose-700 dark:text-rose-300",
+  BAIXA: "bg-neutral-200 text-neutral-900! dark:bg-slate-500/15 dark:text-slate-300!",
+  MEDIA: "bg-slate-200 text-slate-900! dark:bg-indigo-500/15 dark:text-indigo-300!",
+  ALTA: "bg-amber-100 text-amber-950! dark:bg-amber-500/15 dark:text-amber-300!",
+  CRITICA: "bg-rose-100 text-rose-950! dark:bg-rose-500/15 dark:text-rose-300!",
 };
 
 export function formatarData(iso: string) {

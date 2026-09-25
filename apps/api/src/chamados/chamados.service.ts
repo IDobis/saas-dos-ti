@@ -5,13 +5,14 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Perfil, Prisma, StatusChamado, TipoHistorico } from '@prisma/client';
+import { Categoria, Perfil, Prioridade, Prisma, StatusChamado, TipoHistorico } from '@prisma/client';
 import { UsuarioLogado } from '../common/auth';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AtribuirDto,
   AvaliarDto,
   CriarChamadoDto,
+  DemoDto,
   FiltroChamadosDto,
   FollowUpDto,
   MudarStatusDto,
@@ -31,6 +32,41 @@ const TRANSICOES: Record<StatusChamado, StatusChamado[]> = {
 };
 
 const equipe = (u: UsuarioLogado) => u.perfil === Perfil.TECNICO || u.perfil === Perfil.ADMIN;
+
+function inicioDoMes(anoMes: string) {
+  const [ano, mes] = anoMes.split('-').map(Number);
+  return new Date(ano, mes - 1, 1, 8, 0, 0, 0);
+}
+
+function fimDoMes(anoMes: string) {
+  const [ano, mes] = anoMes.split('-').map(Number);
+  return new Date(ano, mes, 0, 18, 0, 0, 0);
+}
+
+function dataNoPeriodo(inicio: Date, fim: Date, indice: number, total: number) {
+  const span = fim.getTime() - inicio.getTime();
+  const passo = total <= 1 ? 0 : Math.floor((indice / (total - 1)) * span);
+  return new Date(inicio.getTime() + passo);
+}
+
+const DEMO_CHAMADOS: {
+  titulo: string;
+  categoria: Categoria;
+  prioridade: Prioridade;
+  status: StatusChamado;
+  diasAtras: number;
+}[] = [
+  { titulo: 'Impressora não imprime', categoria: 'HARDWARE', prioridade: 'ALTA', status: ABERTO, diasAtras: 0 },
+  { titulo: 'Erro ao abrir sistema financeiro', categoria: 'SOFTWARE', prioridade: 'CRITICA', status: EM_ANDAMENTO, diasAtras: 1 },
+  { titulo: 'Sem acesso à rede Wi-Fi', categoria: 'REDE', prioridade: 'MEDIA', status: AGUARDANDO, diasAtras: 2 },
+  { titulo: 'Solicitação de acesso ao ERP', categoria: 'ACESSO', prioridade: 'BAIXA', status: RESOLVIDO, diasAtras: 3 },
+  { titulo: 'Monitor com tela piscando', categoria: 'HARDWARE', prioridade: 'MEDIA', status: RESOLVIDO, diasAtras: 4 },
+  { titulo: 'Instalação de novo software', categoria: 'SOFTWARE', prioridade: 'BAIXA', status: FECHADO, diasAtras: 5 },
+  { titulo: 'Cabo de rede rompido', categoria: 'REDE', prioridade: 'ALTA', status: EM_ANDAMENTO, diasAtras: 1 },
+  { titulo: 'Reset de senha bloqueada', categoria: 'ACESSO', prioridade: 'MEDIA', status: FECHADO, diasAtras: 6 },
+  { titulo: 'Notebook não liga', categoria: 'HARDWARE', prioridade: 'CRITICA', status: ABERTO, diasAtras: 0 },
+  { titulo: 'Chamado de teste cancelado', categoria: 'OUTROS', prioridade: 'BAIXA', status: CANCELADO, diasAtras: 2 },
+];
 
 @Injectable()
 export class ChamadosService {
@@ -67,7 +103,7 @@ export class ChamadosService {
     return this.prisma.chamado.findMany({
       where,
       orderBy: { abertoEm: 'desc' },
-      take: 200,
+      take: 300,
       include: this.resumo,
     });
   }
@@ -175,10 +211,10 @@ export class ChamadosService {
       throw new BadRequestException(`Transição inválida: ${chamado.status} → ${novo}`);
     }
 
-    // Solicitante só pode cancelar ou fechar o próprio chamado (RN09)
+    // Solicitante só pode cancelar o próprio chamado; fechamento é exclusivo da equipe (RN09)
     if (!equipe(user)) {
       if (chamado.solicitanteId !== user.id) throw new ForbiddenException();
-      if (novo !== CANCELADO && novo !== FECHADO) {
+      if (novo !== CANCELADO) {
         throw new ForbiddenException('Apenas a equipe de TI pode alterar este status');
       }
     }
@@ -309,5 +345,102 @@ export class ChamadosService {
       where: { organizacaoId_prioridade: { organizacaoId, prioridade } },
     });
     return sla ? new Date(Date.now() + sla.minutosResolucao * 60_000) : null;
+  }
+
+  // ---------- demo (botão de teste do painel/chamados) ----------
+
+  async seedDemo(user: UsuarioLogado, dto: DemoDto) {
+    const abertos = dto.abertos;
+    const resolvidos = dto.resolvidos;
+    const emAndamento = dto.emAndamento;
+    const resto = dto.resto;
+    const total = abertos + resolvidos + emAndamento + resto;
+    if (total < 1 || total > 300) {
+      throw new BadRequestException('A demonstração precisa ter de 1 a 300 chamados');
+    }
+    const inicioPeriodo = inicioDoMes(dto.de);
+    const fimPeriodo = fimDoMes(dto.ate);
+    if (inicioPeriodo > fimPeriodo) {
+      throw new BadRequestException('O mês inicial não pode ser depois do mês final');
+    }
+
+    const setor =
+      (await this.prisma.setor.findFirst({ where: { organizacaoId: user.organizacaoId, ativo: true } })) ??
+      (await this.prisma.setor.create({ data: { organizacaoId: user.organizacaoId, nome: 'Demo' } }));
+
+    const tecnico = equipe(user)
+      ? user
+      : await this.prisma.usuario.findFirst({
+          where: { organizacaoId: user.organizacaoId, ativo: true, perfil: { in: [Perfil.TECNICO, Perfil.ADMIN] } },
+        });
+
+    const pedidos: StatusChamado[] = [
+      ...Array(abertos).fill(ABERTO),
+      ...Array(resolvidos).fill(RESOLVIDO),
+      ...Array(emAndamento).fill(EM_ANDAMENTO),
+      ...Array.from({ length: resto }, (_, i) => [AGUARDANDO, FECHADO, CANCELADO][i % 3]),
+    ];
+
+    const criados = await this.prisma.chamado.createManyAndReturn({
+      data: pedidos.map((status, i) => {
+        const modelo = DEMO_CHAMADOS[i % DEMO_CHAMADOS.length];
+        const abertoEm = dataNoPeriodo(inicioPeriodo, fimPeriodo, i, total);
+        const concluido = status === RESOLVIDO || status === FECHADO;
+        const resolvidoEm = concluido ? new Date(abertoEm.getTime() + 4 * 3_600_000) : null;
+        const fechadoEm = status === FECHADO ? new Date(resolvidoEm!.getTime() + 2 * 3_600_000) : null;
+        return {
+          organizacaoId: user.organizacaoId,
+          solicitanteId: user.id,
+          tecnicoId: status === ABERTO || status === CANCELADO ? null : (tecnico?.id ?? null),
+          setorId: setor.id,
+          titulo: `[Demo] ${modelo.titulo}`,
+          descricao: 'Chamado gerado pelo botão de demonstração, para testar o painel e a listagem com dados.',
+          categoria: modelo.categoria,
+          prioridade: modelo.prioridade,
+          status,
+          abertoEm,
+          resolvidoEm,
+          fechadoEm,
+        };
+      }),
+      select: { id: true },
+    });
+    await this.prisma.historicoChamado.createMany({
+      data: criados.map((c) => ({
+        chamadoId: c.id,
+        autorId: user.id,
+        tipo: TipoHistorico.CRIACAO,
+        conteudo: 'Chamado aberto (demo)',
+      })),
+    });
+
+    return { criados: criados.length };
+  }
+
+  async removerDemo(user: UsuarioLogado) {
+    const chamados = await this.prisma.chamado.findMany({
+      where: { organizacaoId: user.organizacaoId, titulo: { startsWith: '[Demo]' } },
+      select: { id: true },
+    });
+    const ids = chamados.map((c) => c.id);
+    if (ids.length === 0) return { removidos: 0 };
+
+    await this.prisma.$transaction([
+      this.prisma.avaliacao.deleteMany({ where: { chamadoId: { in: ids } } }),
+      this.prisma.historicoChamado.deleteMany({ where: { chamadoId: { in: ids } } }),
+      this.prisma.anexo.deleteMany({ where: { chamadoId: { in: ids } } }),
+      this.prisma.chamado.deleteMany({ where: { id: { in: ids } } }),
+    ]);
+
+    const setorDemo = await this.prisma.setor.findFirst({
+      where: { organizacaoId: user.organizacaoId, nome: 'Demo' },
+      include: { _count: { select: { chamados: true, usuarios: true, equipamentos: true } } },
+    });
+    const vazio = setorDemo && setorDemo._count.chamados === 0 && setorDemo._count.usuarios === 0 && setorDemo._count.equipamentos === 0;
+    if (setorDemo && vazio) {
+      await this.prisma.setor.delete({ where: { id: setorDemo.id } });
+    }
+
+    return { removidos: ids.length };
   }
 }

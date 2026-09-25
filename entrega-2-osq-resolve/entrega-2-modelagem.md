@@ -23,9 +23,7 @@ A partir da devolutiva da Entrega 1, dada pela professora em aula, a equipe revi
 
 ## 3. Diagrama de casos de uso
 
-O diagrama representa os três perfis definidos em RN09 — Solicitante, Técnico e Administrador — e as principais funcionalidades do sistema, derivadas dos requisitos funcionais RF01 a RF16 (após a inclusão do RF15 e do RF16 na revisão da Entrega 1). Relacionamentos `<<include>>` indicam funcionalidades sempre executadas em conjunto (por exemplo, toda abertura de chamado inclui a autenticação e permite anexar arquivos; toda mudança relevante de chamado inclui o registro no histórico, conforme RN05).
-
-![Diagrama de casos de uso do OSQ Resolve](images/diagrama_casos_uso.png)
+O diagrama representa os três perfis definidos em RN09 — Solicitante, Técnico e Administrador — e as funcionalidades do sistema. `include` marca o que sempre ocorre junto. `extend` marca o que é opcional. A versão em Mermaid, alinhada ao que a API faz, está em [diagrama de casos de uso](../docs/diagrama-casos-de-uso.md).
 
 ---
 
@@ -101,26 +99,24 @@ Foram modelados os dois processos centrais do sistema: a abertura de um chamado 
 
 ### 5.1 Abrir chamado
 
-![Diagrama de atividades – Abrir chamado](images/diagrama_atividades_abrir_chamado.png)
+O fluxo de abertura, o de atendimento e a máquina de estados estão em [diagramas de atividades](../docs/diagrama-atividades.md).
 
 ### 5.2 Atender e resolver chamado
 
-![Diagrama de atividades – Atender e resolver chamado](images/diagrama_atividades_atender_chamado.png)
+O atendimento não é uma fila única até o fechamento. O chamado pode ir para aguardando, ser resolvido sem passar por aguardando, ser cancelado com justificativa ou ser reaberto a partir de resolvido ou fechado. O desenho corrigido está no mesmo arquivo de atividades.
 
 ---
 
 ## 6. Modelo conceitual do banco de dados
 
-A partir dos substantivos identificados nos requisitos (usuário, técnico, setor, equipamento, chamado, categoria, prioridade, histórico, avaliação e anexo), foram definidas as entidades, seus atributos principais e os relacionamentos entre elas.
-
-![Modelo conceitual – OSQ Resolve](images/modelo_conceitual.png)
+O modelo conceitual implementado está em [modelo conceitual](../docs/modelo-conceitual.md). O diagrama de classes correspondente está em [diagrama de classes](../docs/diagrama-de-classes.md).
 
 **Leitura dos principais relacionamentos:**
 
-- Um Setor possui vários Usuários, vários Equipamentos e recebe vários Chamados; cada um desses pertence a um único Setor.
-- Um Usuário pode ser um Técnico (especialização 1:1), pode abrir vários Chamados como solicitante e pode atender vários Chamados como técnico responsável (RN03).
-- Um Chamado pertence a uma Categoria e a uma Prioridade, pode referenciar um Equipamento (RN08) e gera vários registros de Histórico (RN05) e Anexos (RF14).
-- Um Chamado possui no máximo uma Avaliação, feita apenas pelo solicitante (RN07).
+- A organização agrupa setores, usuários, equipamentos, chamados e a configuração de SLA.
+- Setor do usuário e do equipamento é opcional. Todo chamado pertence a um setor.
+- Técnico não é uma entidade separada. É um usuário com perfil técnico e especialidade opcional. Esse usuário abre chamados como solicitante e pode atender chamados como responsável.
+- Categoria, prioridade, status e tipo de histórico são enumerações. O chamado pode referenciar um equipamento e gera histórico. A avaliação é no máximo uma, feita pelo solicitante.
 
 ---
 

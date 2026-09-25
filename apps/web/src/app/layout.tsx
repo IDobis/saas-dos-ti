@@ -7,7 +7,7 @@ const geistSans = Geist({ variable: "--font-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "SaaS dos TI",
+  title: "OSQ-Resolve",
   description: "Sistema de chamados para suporte de tecnologia",
 };
 

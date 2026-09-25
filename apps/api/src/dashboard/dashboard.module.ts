@@ -10,6 +10,10 @@ class FiltroPainelDto {
 
   @IsOptional() @IsString()
   ate?: string;
+
+  /** Ano do primeiro gráfico. */
+  @IsOptional() @IsString()
+  ano?: string;
 }
 
 @Injectable()
@@ -23,7 +27,7 @@ class DashboardService {
         ? { [campo]: { ...(f.de && { gte: new Date(f.de) }), ...(f.ate && { lte: new Date(f.ate) }) } }
         : {};
 
-    const [porStatus, porCategoria, concluidos, ultimos7] = await Promise.all([
+    const [porStatus, porCategoria, concluidos, chamados] = await Promise.all([
       this.prisma.chamado.groupBy({
         by: ['status'],
         where: { organizacaoId: org, ...periodo('abertoEm') },
@@ -40,8 +44,8 @@ class DashboardService {
         select: { abertoEm: true, resolvidoEm: true, prazoResolucao: true },
       }),
       this.prisma.chamado.findMany({
-        where: { organizacaoId: org, abertoEm: { gte: new Date(Date.now() - 6 * 86_400_000) } },
-        select: { abertoEm: true, resolvidoEm: true },
+        where: { organizacaoId: org, ...periodo('abertoEm') },
+        select: { abertoEm: true, status: true },
       }),
     ]);
 
@@ -49,16 +53,27 @@ class DashboardService {
     const tempos = concluidos.map((c) => c.resolvidoEm!.getTime() - c.abertoEm.getTime());
     const noPrazo = concluidos.filter((c) => !c.prazoResolucao || c.resolvidoEm! <= c.prazoResolucao).length;
 
-    const hoje = new Date();
-    const semana = Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(hoje);
-      d.setDate(hoje.getDate() - (6 - i));
-      const chave = d.toDateString();
-      return {
-        dia: d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
-        Abertos: ultimos7.filter((c) => c.abertoEm.toDateString() === chave).length,
-        Resolvidos: ultimos7.filter((c) => c.resolvidoEm?.toDateString() === chave).length,
-      };
+    const rotulo: Record<StatusChamado, string> = {
+      ABERTO: 'Aberto',
+      EM_ANDAMENTO: 'Em andamento',
+      AGUARDANDO: 'Aguardando',
+      RESOLVIDO: 'Resolvido',
+      FECHADO: 'Fechado',
+      CANCELADO: 'Cancelado',
+    };
+    const ordem = Object.keys(rotulo) as StatusChamado[];
+    const anoAtual = new Date().getFullYear();
+    const anos = [...new Set(chamados.map((c) => c.abertoEm.getFullYear()))];
+    if (!anos.includes(anoAtual)) anos.push(anoAtual);
+    anos.sort((a, b) => a - b);
+    const ano = Number(f.ano);
+    const anoFiltro = anos.includes(ano) ? ano : anoAtual;
+    const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+    const semana = meses.map((nome, mes) => {
+      const doMes = chamados.filter((c) => c.abertoEm.getFullYear() === anoFiltro && c.abertoEm.getMonth() === mes);
+      const ponto: Record<string, string | number> = { dia: nome };
+      for (const status of ordem) ponto[rotulo[status]] = doMes.filter((c) => c.status === status).length;
+      return ponto;
     });
 
     return {
@@ -70,6 +85,8 @@ class DashboardService {
       percentualNoPrazo: concluidos.length ? Math.round((noPrazo / concluidos.length) * 100) : null,
       porStatus: porStatus.map((x) => ({ status: x.status, total: x._count })),
       porCategoria: porCategoria.map((x) => ({ categoria: x.categoria, total: x._count })),
+      anos,
+      ano: anoFiltro,
       semana,
     };
   }

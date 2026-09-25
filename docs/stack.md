@@ -11,7 +11,6 @@
 | shadcn/ui (estilo `base-nova`, base-ui) | Componentes de interface |
 | Tremor 3 (`@tremor/react`) | Gráficos do painel |
 | Sonner | Notificações (toasts) com duração de 6 segundos |
-| Motion (`motion/react`) | Animações |
 | next-themes | Tema claro/escuro |
 | Lucide | Ícones |
 | Geist / Geist Mono | Fontes |

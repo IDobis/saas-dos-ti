@@ -1,0 +1,10 @@
+{
+  "name": "saas-dos-ti",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n API,WEB -c blue,green \"npm --prefix apps/api run start:dev\" \"npm --prefix apps/web run dev -- -p 3100\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

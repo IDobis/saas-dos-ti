@@ -11,8 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <AuthProvider>
         <TooltipProvider>{children}</TooltipProvider>
       </AuthProvider>
-      {/* Todas as notificações do sistema duram 6 segundos */}
-      <Toaster duration={6000} position="top-right" richColors closeButton />
+      <Toaster duration={6000} position="top-right" closeButton offset={16} />
     </ThemeProvider>
   );
 }

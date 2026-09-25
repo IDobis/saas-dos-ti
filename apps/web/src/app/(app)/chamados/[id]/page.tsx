@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { motion } from "motion/react";
 import { toast } from "sonner";
 import { ArrowLeft, Loader2, Lock, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +11,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/native-select";
-import { FadeIn } from "@/components/motion";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
@@ -67,7 +65,7 @@ export default function ChamadoDetalhePage() {
     if (!ehEquipe) return;
     api<UsuarioLista[]>("/usuarios")
       .then((u) => setTecnicos(u.filter((x) => x.ativo && x.perfil !== "SOLICITANTE")))
-      .catch(() => {});
+      .catch((e: Error) => toast.error(e.message));
   }, [ehEquipe]);
 
   async function executar(fn: () => Promise<unknown>, sucesso: string) {
@@ -103,7 +101,7 @@ export default function ChamadoDetalhePage() {
   };
 
   return (
-    <FadeIn>
+    <div>
       <Link href="/chamados" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> Chamados
       </Link>
@@ -111,7 +109,7 @@ export default function ChamadoDetalhePage() {
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-sm text-muted-foreground">#{c.numero}</p>
-          <h1 className="text-2xl font-semibold tracking-tight">{c.titulo}</h1>
+          <h1 className="text-xl font-semibold">{c.titulo}</h1>
           <div className="mt-2 flex flex-wrap gap-2">
             <Badge className={STATUS_STYLE[c.status]}>{STATUS_LABEL[c.status]}</Badge>
             <Badge className={PRIORIDADE_STYLE[c.prioridade]}>{PRIORIDADE_LABEL[c.prioridade]}</Badge>
@@ -127,7 +125,7 @@ export default function ChamadoDetalhePage() {
               disabled={ocupado}
               onClick={() => mudarStatus(s)}
             >
-              {s === "CANCELADO" ? "Cancelar" : `→ ${STATUS_LABEL[s]}`}
+              {s === "CANCELADO" ? "Cancelar" : STATUS_LABEL[s]}
             </Button>
           ))}
           {podeReabrir && (
@@ -139,7 +137,7 @@ export default function ChamadoDetalhePage() {
       </div>
 
       {acaoJust && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mb-4 overflow-hidden">
+        <div className="mb-4">
           <Card>
             <CardContent className="grid gap-3">
               <p className="text-sm font-medium">
@@ -168,7 +166,7 @@ export default function ChamadoDetalhePage() {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       )}
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -182,14 +180,8 @@ export default function ChamadoDetalhePage() {
             <CardHeader><CardTitle>Histórico</CardTitle></CardHeader>
             <CardContent>
               <ol className="relative grid gap-5 border-l pl-5">
-                {c.historico.map((h, i) => (
-                  <motion.li
-                    key={h.id}
-                    className="relative"
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: Math.min(i, 8) * 0.05 }}
-                  >
+                {c.historico.map((h) => (
+                  <li key={h.id} className="relative">
                     <span className={cn("absolute -left-[26px] top-1.5 size-2.5 rounded-full", h.tipo === "FOLLOWUP" ? "bg-primary" : "bg-muted-foreground/50")} />
                     <p className="text-xs text-muted-foreground">
                       {h.autor.nome} · {formatarDataHora(h.criadoEm)}
@@ -200,7 +192,7 @@ export default function ChamadoDetalhePage() {
                       )}
                     </p>
                     <p className={cn("mt-0.5 whitespace-pre-wrap text-sm", h.tipo !== "FOLLOWUP" && "text-muted-foreground")}>{h.conteudo}</p>
-                  </motion.li>
+                  </li>
                 ))}
               </ol>
 
@@ -291,7 +283,7 @@ export default function ChamadoDetalhePage() {
           )}
         </div>
       </div>
-    </FadeIn>
+    </div>
   );
 }
 

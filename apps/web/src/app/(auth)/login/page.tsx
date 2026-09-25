@@ -2,9 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
 import { toast } from "sonner";
-import { LifeBuoy, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -30,7 +29,6 @@ export default function LoginPage() {
     try {
       if (modo === "entrar") {
         await entrar(email, senha);
-        toast.success("Bem-vindo de volta!");
       } else {
         await registrar({
           organizacao: String(f.get("organizacao")).trim(),
@@ -38,7 +36,7 @@ export default function LoginPage() {
           email,
           senha,
         });
-        toast.success("Conta criada!", { description: "Você é o administrador da sua organização." });
+        toast.success("Conta criada", { description: "Você é o administrador da organização." });
       }
       router.replace("/dashboard");
     } catch (err) {
@@ -48,24 +46,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-500/10 via-background to-violet-500/10 p-4">
-      <motion.div
-        className="w-full max-w-sm"
-        initial={{ opacity: 0, y: 20, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.45, ease: "easeOut" }}
-      >
-        <div className="mb-6 flex flex-col items-center gap-3">
-          <motion.span
-            className="flex size-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg"
-            animate={{ rotate: [0, -8, 8, 0] }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-          >
-            <LifeBuoy className="size-7" />
-          </motion.span>
-          <h1 className="text-2xl font-semibold tracking-tight">SaaS dos TI</h1>
-          <p className="text-sm text-muted-foreground">
-            {modo === "entrar" ? "Entre para abrir e acompanhar chamados" : "Crie a conta da sua organização"}
+    <div className="flex min-h-screen items-center justify-center bg-muted/40 p-4">
+      <div className="w-full max-w-sm">
+        <div className="mb-6">
+          <h1 className="text-xl font-semibold">SaaS dos TI</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {modo === "entrar" ? "Acesso ao sistema de chamados" : "Cadastro da organização"}
           </p>
         </div>
         <Card>
@@ -112,7 +98,7 @@ export default function LoginPage() {
             </button>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </div>
   );
 }

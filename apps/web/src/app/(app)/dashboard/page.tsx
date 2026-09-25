@@ -3,13 +3,10 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AreaChart, BarList, DonutChart } from "@tremor/react";
-import { motion } from "motion/react";
 import { toast } from "sonner";
-import { CheckCircle2, Clock, Inbox, Timer } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
-import { listItem } from "@/components/motion";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import {
@@ -48,7 +45,7 @@ export default function DashboardPage() {
   if (!painel) {
     return (
       <>
-        <PageHeader titulo="Painel" descricao="Visão geral do atendimento." />
+        <PageHeader titulo="Painel" />
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-24 rounded-xl" />
@@ -60,47 +57,30 @@ export default function DashboardPage() {
   }
 
   const kpis = [
-    { titulo: "Chamados abertos", valor: String(painel.abertos), icon: Inbox, cor: "text-blue-500 bg-blue-500/10" },
-    { titulo: "Concluídos", valor: String(painel.concluidos), icon: CheckCircle2, cor: "text-emerald-500 bg-emerald-500/10" },
-    { titulo: "Tempo médio de resolução", valor: formatarDuracao(painel.tempoMedioResolucaoMin), icon: Timer, cor: "text-violet-500 bg-violet-500/10" },
-    { titulo: "Dentro do prazo", valor: painel.percentualNoPrazo === null ? "—" : `${painel.percentualNoPrazo}%`, icon: Clock, cor: "text-amber-500 bg-amber-500/10" },
+    { titulo: "Chamados abertos", valor: String(painel.abertos) },
+    { titulo: "Concluídos", valor: String(painel.concluidos) },
+    { titulo: "Tempo médio de resolução", valor: formatarDuracao(painel.tempoMedioResolucaoMin) },
+    { titulo: "Dentro do prazo", valor: painel.percentualNoPrazo === null ? "—" : `${painel.percentualNoPrazo}%` },
   ];
   const porStatus = painel.porStatus.map((s) => ({ nome: STATUS_LABEL[s.status], total: s.total }));
   const porCategoria = painel.porCategoria.map((c) => ({ name: CATEGORIA_LABEL[c.categoria], value: c.total }));
 
   return (
     <>
-      <PageHeader titulo="Painel" descricao="Visão geral do atendimento." />
+      <PageHeader titulo="Painel" />
 
-      <motion.div
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-        initial="hidden"
-        animate="show"
-        transition={{ staggerChildren: 0.08 }}
-      >
-        {kpis.map(({ titulo, valor, icon: Icon, cor }) => (
-          <motion.div key={titulo} variants={listItem} whileHover={{ y: -3 }}>
-            <Card>
-              <CardContent className="flex items-center gap-4">
-                <span className={`flex size-11 items-center justify-center rounded-xl ${cor}`}>
-                  <Icon className="size-5" />
-                </span>
-                <div>
-                  <p className="text-sm text-muted-foreground">{titulo}</p>
-                  <p className="text-2xl font-semibold">{valor}</p>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {kpis.map(({ titulo, valor }) => (
+          <Card key={titulo}>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">{titulo}</p>
+              <p className="mt-1 text-2xl font-semibold tabular-nums">{valor}</p>
+            </CardContent>
+          </Card>
         ))}
-      </motion.div>
+      </div>
 
-      <motion.div
-        className="mt-4 grid gap-4 lg:grid-cols-3"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.45 }}
-      >
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Últimos 7 dias</CardTitle>
@@ -114,7 +94,6 @@ export default function DashboardPage() {
               colors={["indigo", "emerald"]}
               yAxisWidth={32}
               allowDecimals={false}
-              showAnimation
             />
           </CardContent>
         </Card>
@@ -131,7 +110,6 @@ export default function DashboardPage() {
                 category="total"
                 index="nome"
                 colors={["blue", "violet", "amber", "emerald", "slate", "rose"]}
-                showAnimation
               />
             ) : (
               <p className="py-16 text-center text-sm text-muted-foreground">Sem chamados ainda.</p>
@@ -151,7 +129,7 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     </>
   );
 }

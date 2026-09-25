@@ -21,7 +21,6 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  /** Cria uma nova organização (tenant) com seu primeiro administrador. */
   async registrar(dto: RegistrarDto) {
     const email = dto.email.trim().toLowerCase();
     const jaExiste = await this.prisma.usuario.findFirst({ where: { email } });

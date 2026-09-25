@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { toast } from "sonner";
 import { Plus, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -44,7 +43,7 @@ export default function ChamadosPage() {
     <>
       <PageHeader
         titulo="Chamados"
-        descricao="Acompanhe e filtre os chamados."
+        descricao="Busca por título, descrição ou número."
         acao={
           <Link href="/chamados/novo" className={cn(buttonVariants())}>
             <Plus className="size-4" /> Novo chamado
@@ -87,7 +86,7 @@ export default function ChamadosPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="border-b bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <thead className="border-b bg-muted/40 text-left text-xs font-medium text-muted-foreground">
                   <tr>
                     <th className="px-4 py-3">Nº</th>
                     <th className="px-4 py-3">Título</th>
@@ -99,16 +98,8 @@ export default function ChamadosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  <AnimatePresence initial={false}>
-                    {lista.map((c, i) => (
-                      <motion.tr
-                        key={c.id}
-                        layout
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0, transition: { delay: Math.min(i, 10) * 0.03 } }}
-                        exit={{ opacity: 0 }}
-                        className="border-b last:border-0 hover:bg-muted/40"
-                      >
+                    {lista.map((c) => (
+                      <tr key={c.id} className="border-b last:border-0 hover:bg-muted/40">
                         <td className="px-4 py-3 font-mono text-muted-foreground">
                           <Link href={`/chamados/${c.id}`}>#{c.numero}</Link>
                         </td>
@@ -130,9 +121,8 @@ export default function ChamadosPage() {
                         <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                           {formatarData(c.abertoEm)}
                         </td>
-                      </motion.tr>
+                      </tr>
                     ))}
-                  </AnimatePresence>
                 </tbody>
               </table>
             </div>

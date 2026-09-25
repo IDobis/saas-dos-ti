@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { useTheme } from "next-themes";
 import { LayoutDashboard, LifeBuoy, LogOut, Menu, Moon, PlusCircle, Sun, Ticket, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,19 +30,12 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
             href={href}
             onClick={onNavigate}
             className={cn(
-              "relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-              ativo ? "text-primary" : "text-muted-foreground hover:text-foreground",
+              "flex items-center gap-3 rounded-md px-3 py-2 text-sm",
+              ativo ? "bg-muted font-medium text-foreground" : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
             )}
           >
-            {ativo && (
-              <motion.span
-                layoutId="nav-ativo"
-                className="absolute inset-0 rounded-lg bg-primary/10"
-                transition={{ type: "spring", stiffness: 400, damping: 32 }}
-              />
-            )}
-            <Icon className="relative size-4" />
-            <span className="relative">{label}</span>
+            <Icon className="size-4" />
+            <span>{label}</span>
           </Link>
         );
       })}
@@ -114,7 +106,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-background px-4 lg:px-8">
           <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu" onClick={() => setAberto(true)}>
             <Menu className="size-4" />
           </Button>
@@ -126,23 +118,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <AnimatePresence>
-          {aberto && (
+        {aberto && (
             <>
-              <motion.div
+              <div
                 className="fixed inset-0 z-40 bg-black/40 lg:hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
                 onClick={() => setAberto(false)}
               />
-              <motion.aside
-                className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col gap-6 bg-background py-5 shadow-xl lg:hidden"
-                initial={{ x: "-100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ type: "spring", stiffness: 380, damping: 36 }}
-              >
+              <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col gap-6 border-r bg-background py-5 lg:hidden">
                 <div className="flex items-center justify-between pr-3">
                   <Brand />
                   <Button variant="ghost" size="icon" aria-label="Fechar menu" onClick={() => setAberto(false)}>
@@ -152,10 +134,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div className="px-3">
                   <NavLinks onNavigate={() => setAberto(false)} />
                 </div>
-              </motion.aside>
+              </aside>
             </>
           )}
-        </AnimatePresence>
 
         <main className="mx-auto w-full max-w-7xl flex-1 p-4 lg:p-8">{children}</main>
       </div>

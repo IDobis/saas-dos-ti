@@ -11,7 +11,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/native-select";
 import { PageHeader } from "@/components/page-header";
-import { FadeIn } from "@/components/motion";
 import { api } from "@/lib/api";
 import { CATEGORIA_LABEL, PRIORIDADE_LABEL, type Chamado, type Setor } from "@/lib/chamados";
 
@@ -41,7 +40,7 @@ export default function NovoChamadoPage() {
           setorId: f.get("setorId"),
         },
       });
-      toast.success(`Chamado #${c.numero} aberto com sucesso!`, { description: "Status inicial: Aberto." });
+      toast.success(`Chamado #${c.numero} aberto`);
       router.push(`/chamados/${c.id}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Não foi possível abrir o chamado.");
@@ -52,8 +51,7 @@ export default function NovoChamadoPage() {
   return (
     <>
       <PageHeader titulo="Novo chamado" descricao="Descreva o problema para a equipe de TI." />
-      <FadeIn delay={0.1}>
-        <Card className="max-w-2xl">
+      <Card className="max-w-2xl">
           <CardContent>
             <form onSubmit={enviar} className="grid gap-5">
               <div className="grid gap-2">
@@ -108,8 +106,7 @@ export default function NovoChamadoPage() {
               </div>
             </form>
           </CardContent>
-        </Card>
-      </FadeIn>
+      </Card>
     </>
   );
 }

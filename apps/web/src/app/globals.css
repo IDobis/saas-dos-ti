@@ -142,3 +142,89 @@
     color: var(--popover-foreground);
   }
 }
+
+/* Aviso do sistema: cartão neutro, faixa lateral e ícone na cor do tipo. */
+[data-sonner-toaster] {
+  font-family: inherit;
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-styled="true"] {
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 32px 12px 12px;
+  background: var(--popover);
+  color: var(--popover-foreground);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-left-color: var(--toast-accent, var(--border));
+  border-radius: 6px;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 20px rgb(0 0 0 / 0.08);
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  --toast-accent: #157347;
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  --toast-accent: #b42318;
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
+  --toast-accent: #b54708;
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-type="info"],
+html body [data-sonner-toaster] [data-sonner-toast][data-type="loading"] {
+  --toast-accent: var(--primary);
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-icon] {
+  margin-top: 1px;
+  color: var(--toast-accent, var(--muted-foreground));
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-title] {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-description] {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button] {
+  top: 8px;
+  left: auto;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  transform: none;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted-foreground);
+}
+
+html body [data-sonner-toaster] [data-sonner-toast][data-styled="true"] [data-close-button]:hover {
+  background: var(--muted);
+  border-color: transparent;
+  color: var(--foreground);
+}
+
+html.dark body [data-sonner-toaster] [data-sonner-toast][data-type="success"] {
+  --toast-accent: #3dbe7a;
+}
+
+html.dark body [data-sonner-toaster] [data-sonner-toast][data-type="error"] {
+  --toast-accent: #f97066;
+}
+
+html.dark body [data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
+  --toast-accent: #fdb022;
+}

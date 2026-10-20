@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import { useContext, useRef, useState } from "react";
 import { LayoutRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
+import { Slider } from "@base-ui/react/slider";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { LayoutDashboard, LogOut, Menu, Moon, PlusCircle, Shuffle, Sun, Ticket, Users, X } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { SeletorMeses } from "@/components/seletor-meses";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -126,6 +128,7 @@ function DemoButton() {
   if (usuario?.perfil !== "ADMIN") return null;
 
   const total = somaDemo(qtd);
+  const livre = LIMITE_DEMO - total;
 
   function definir(campo: keyof QuantidadesDemo, valor: number) {
     const proximo = { ...qtd, [campo]: valor };
@@ -168,26 +171,15 @@ function DemoButton() {
               <DialogTitle>Dados de teste</DialogTitle>
               <DialogDescription>Distribua até {LIMITE_DEMO} chamados no período e nos status.</DialogDescription>
             </DialogHeader>
-            <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
-              <input
-                aria-label="Mês inicial"
-                type="month"
-                value={de}
-                max={ate || MES_ATUAL}
-                onChange={(e) => setDe(e.target.value)}
-                className="h-9 rounded-lg border border-input bg-card px-3 text-sm dark:bg-input/30"
-              />
-              <span className="text-xs text-muted-foreground">até</span>
-              <input
-                aria-label="Mês final"
-                type="month"
-                value={ate}
-                min={de}
-                max={MES_ATUAL}
-                onChange={(e) => setAte(e.target.value)}
-                className="h-9 rounded-lg border border-input bg-card px-3 text-sm dark:bg-input/30"
-              />
-            </div>
+            <SeletorMeses
+              de={de}
+              ate={ate}
+              max={MES_ATUAL}
+              onChange={(novoDe, novoAte) => {
+                setDe(novoDe);
+                setAte(novoAte);
+              }}
+            />
             <div className="grid gap-4">
               <div className="flex items-baseline justify-between">
                 <p className="text-2xl font-semibold tabular-nums tracking-tight">{total}</p>
@@ -195,21 +187,22 @@ function DemoButton() {
               </div>
               <MedidorDemo qtd={qtd} />
               <div className="grid gap-3">
-                <BarraDemo tom="indigo" rotulo="Abertos" valor={qtd.abertos} onChange={(v) => definir("abertos", v)} />
-                <BarraDemo tom="amber" rotulo="Em andamento" valor={qtd.emAndamento} onChange={(v) => definir("emAndamento", v)} />
-                <BarraDemo tom="slate" rotulo="Resolvidos" valor={qtd.resolvidos} onChange={(v) => definir("resolvidos", v)} />
+                <BarraDemo tom="indigo" rotulo="Abertos" valor={qtd.abertos} livre={livre} onChange={(v) => definir("abertos", v)} />
+                <BarraDemo tom="amber" rotulo="Em andamento" valor={qtd.emAndamento} livre={livre} onChange={(v) => definir("emAndamento", v)} />
+                <BarraDemo tom="slate" rotulo="Resolvidos" valor={qtd.resolvidos} livre={livre} onChange={(v) => definir("resolvidos", v)} />
                 <BarraDemo
                   tom="violet"
                   rotulo="Outros status"
                   detalhe="Aguardando, fechados e cancelados"
                   valor={qtd.resto}
+                  livre={livre}
                   onChange={(v) => definir("resto", v)}
                 />
               </div>
             </div>
           </div>
           <DialogFooter className="mx-0 mb-0 sm:justify-between">
-            <Button variant="ghost" className="text-destructive hover:bg-destructive/10 hover:text-destructive" onClick={remover} disabled={carregando !== null}>
+            <Button className="bg-destructive text-white hover:bg-destructive/90" onClick={remover} disabled={carregando !== null}>
               {carregando === "remover" ? "Apagando..." : "Apagar testes"}
             </Button>
             <div className="flex gap-2">
@@ -217,7 +210,7 @@ function DemoButton() {
                 <Shuffle />
                 Misturar
               </Button>
-              <Button onClick={gerar} disabled={carregando !== null || total < 1 || !de || !ate || de > ate}>
+              <Button onClick={gerar} disabled={carregando !== null || total < 1}>
                 {carregando === "gerar" ? "Gerando..." : "Gerar"}
               </Button>
             </div>
@@ -229,10 +222,10 @@ function DemoButton() {
 }
 
 const TOM_DEMO = {
-  indigo: { ponto: "bg-indigo-600 dark:bg-indigo-400", acento: "accent-indigo-600 dark:accent-indigo-400" },
-  amber: { ponto: "bg-amber-500", acento: "accent-amber-500" },
-  slate: { ponto: "bg-slate-500 dark:bg-slate-300", acento: "accent-slate-500 dark:accent-slate-300" },
-  violet: { ponto: "bg-violet-500", acento: "accent-violet-500" },
+  indigo: { ponto: "bg-indigo-600 dark:bg-indigo-400", texto: "text-indigo-600 dark:text-indigo-400" },
+  amber: { ponto: "bg-amber-500", texto: "text-amber-500" },
+  slate: { ponto: "bg-slate-500 dark:bg-slate-300", texto: "text-slate-500 dark:text-slate-300" },
+  violet: { ponto: "bg-violet-500", texto: "text-violet-500" },
 } as const;
 
 function MedidorDemo({ qtd }: { qtd: QuantidadesDemo }) {
@@ -262,36 +255,62 @@ function BarraDemo({
   rotulo,
   detalhe,
   valor,
+  livre,
   onChange,
 }: {
   tom: keyof typeof TOM_DEMO;
   rotulo: string;
   detalhe?: string;
   valor: number;
+  /** Quanto ainda cabe no limite sem tirar dos outros status. */
+  livre: number;
   onChange: (valor: number) => void;
 }) {
-  const { ponto, acento } = TOM_DEMO[tom];
+  const { ponto, texto } = TOM_DEMO[tom];
   return (
-    <label className="grid gap-1.5 text-sm">
-      <span className="flex items-center justify-between gap-3">
-        <span className="flex items-center gap-2">
+    <div className={cn("grid gap-2 text-sm", texto)}>
+      <div className="flex items-center justify-between gap-3">
+        <span className="flex items-center gap-2 text-foreground">
           <span className={cn("size-2 shrink-0 rounded-full", ponto)} />
           <span>
             {rotulo}
             {detalhe && <span className="block text-xs text-muted-foreground">{detalhe}</span>}
           </span>
         </span>
-        <span className="tabular-nums text-muted-foreground">{valor}</span>
-      </span>
-      <input
-        type="range"
+        <input
+          aria-label={`Quantidade: ${rotulo}`}
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={valor + livre}
+          value={valor}
+          onChange={(e) => onChange(Math.max(0, Number(e.target.value) || 0))}
+          className="h-7 w-14 rounded-md bg-transparent px-1.5 text-right text-foreground tabular-nums outline-none transition-colors [appearance:textfield] hover:bg-muted focus:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        />
+      </div>
+      <Slider.Root
+        value={valor}
         min={0}
         max={LIMITE_DEMO}
-        value={valor}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className={cn("h-1.5 w-full cursor-pointer", acento)}
-      />
-    </label>
+        thumbAlignment="edge"
+        onValueChange={(v) => onChange(Math.min(v, valor + livre))}
+      >
+        <Slider.Control className="flex h-4 cursor-pointer touch-none items-center select-none">
+          <Slider.Track className="relative h-1.5 w-full rounded-full bg-muted">
+            <div
+              aria-hidden="true"
+              className="absolute inset-y-0 left-0 rounded-full bg-current opacity-15 transition-[width] duration-200"
+              style={{ width: `${((valor + livre) / LIMITE_DEMO) * 100}%` }}
+            />
+            <Slider.Indicator className="rounded-full bg-current" />
+            <Slider.Thumb
+              aria-label={rotulo}
+              className="size-4 rounded-full border-2 border-current bg-white shadow-[0_1px_3px_rgb(0_0_0/0.2)] transition-[box-shadow,scale] has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-current/25 data-dragging:scale-110 dark:bg-neutral-950"
+            />
+          </Slider.Track>
+        </Slider.Control>
+      </Slider.Root>
+    </div>
   );
 }
 

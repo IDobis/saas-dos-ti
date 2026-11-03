@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -101,7 +101,7 @@ export default function NovoChamadoPage() {
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={enviando}>
-                  {enviando && <Loader2 className="size-4 animate-spin" />} Abrir chamado
+                  {enviando && <LoaderCircle className="size-4" animate />} Abrir chamado
                 </Button>
               </div>
             </form>

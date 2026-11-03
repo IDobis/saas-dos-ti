@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
-import { ChevronDown, ChevronUp, Plus, Search } from "lucide-react";
+import { AnimateIcon } from "@animate-ui/react/icons";
+import { ChevronDown } from "@/components/animate-ui/icons/chevron-down";
+import { ChevronUp } from "@/components/animate-ui/icons/chevron-up";
+import { Plus } from "@/components/animate-ui/icons/plus";
+import { Search } from "@/components/animate-ui/icons/search";
 import { Marcador } from "@/components/marcador";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -97,13 +101,16 @@ export default function ChamadosPage() {
         titulo="Chamados"
         descricao="Busca por título, descrição ou número."
         acao={
-          <Link href="/chamados/novo" className={cn(buttonVariants())}>
-            <Plus className="size-4" /> Novo chamado
-          </Link>
+          <AnimateIcon animateOnHover asChild>
+            <Link href="/chamados/novo" className={cn(buttonVariants())}>
+              <Plus className="size-4" /> Novo chamado
+            </Link>
+          </AnimateIcon>
         }
       />
 
       <div className="mb-4 grid gap-3 sm:grid-cols-[1fr_180px_180px]">
+        <AnimateIcon animateOnHover asChild>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -113,6 +120,7 @@ export default function ChamadosPage() {
             onChange={(e) => setBusca(e.target.value)}
           />
         </div>
+        </AnimateIcon>
         <NativeSelect value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
           <option value="">Todos os status</option>
           {Object.entries(STATUS_LABEL).map(([k, v]) => (
@@ -206,6 +214,7 @@ function Cabecalho({
   const selecionada = ativa === coluna;
   return (
     <th className={cn("px-4 py-3", className)}>
+      <AnimateIcon animateOnHover asChild>
       <button
         type="button"
         onClick={() => onClick(coluna)}
@@ -215,6 +224,7 @@ function Cabecalho({
         {children}
         {selecionada && (direcao === "asc" ? <ChevronUp className="size-3.5" /> : <ChevronDown className="size-3.5" />)}
       </button>
+      </AnimateIcon>
     </th>
   );
 }

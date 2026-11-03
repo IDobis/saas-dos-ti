@@ -9,13 +9,13 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@animate-ui/react": "^2.4.2",
     "@base-ui/react": "^1.8.0",
     "@headlessui/tailwindcss": "^0.2.2",
     "@tailwindcss/forms": "^0.5.11",
     "@tremor/react": "^3.18.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "lucide-react": "^1.48.0",
     "motion": "^13.4.3",
     "next": "16.3.6",
     "next-themes": "^0.4.6",

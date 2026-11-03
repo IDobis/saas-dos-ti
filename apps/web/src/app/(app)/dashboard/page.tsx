@@ -2,14 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { AreaChart, DonutChart } from "@tremor/react";
+import { AreaChart, DonutChart, type CustomTooltipProps } from "@tremor/react";
+import { Effect, Effects } from "@animate-ui/react/primitives/effects/effect";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useModuleReady, useModuleReadyState } from "@/lib/module-ready";
 import {
   CATEGORIA_LABEL,
   STATUS_LABEL,
@@ -17,6 +18,54 @@ import {
   type Categoria,
   type Status,
 } from "@/lib/chamados";
+
+const COR_PONTO: Record<string, string> = {
+  indigo: "bg-indigo-500 dark:bg-indigo-400",
+  amber: "bg-amber-500 dark:bg-amber-400",
+  violet: "bg-violet-500 dark:bg-violet-400",
+  slate: "bg-slate-500 dark:bg-slate-300",
+  blue: "bg-blue-500 dark:bg-blue-400",
+  rose: "bg-rose-500 dark:bg-rose-400",
+  gray: "bg-muted-foreground",
+};
+
+/** Tooltip Animate UI (spring) com cores do tema do app. */
+function TooltipGrafico({ active, payload, label }: CustomTooltipProps) {
+  if (!active || !payload?.length) return null;
+  const itens = payload.filter((p) => p.type !== "none" && p.value != null);
+  if (!itens.length) return null;
+
+  return (
+    <Effect
+      key={String(label)}
+      fade
+      zoom={{ initialScale: 0.7 }}
+      transition={{ type: "spring", stiffness: 400, damping: 31 }}
+      className="rounded-md border border-border bg-popover px-3 py-2 text-xs text-popover-foreground shadow-md"
+    >
+      <p className="mb-1.5 font-medium text-muted-foreground">{label}</p>
+      <ul className="grid gap-1">
+        {itens.map((item) => (
+          <li
+            key={String(item.dataKey ?? item.name)}
+            className="flex items-center justify-between gap-5"
+          >
+            <span className="flex min-w-0 items-center gap-1.5 text-muted-foreground">
+              <span
+                className={cn(
+                  "size-1.5 shrink-0 rounded-full",
+                  COR_PONTO[String(item.color)] ?? "bg-muted-foreground",
+                )}
+              />
+              <span className="truncate">{item.name}</span>
+            </span>
+            <span className="font-medium tabular-nums text-foreground">{item.value}</span>
+          </li>
+        ))}
+      </ul>
+    </Effect>
+  );
+}
 
 function BarrasCategoria({
   itens,
@@ -85,10 +134,12 @@ export default function DashboardPage() {
   const router = useRouter();
   const { ehEquipe } = useAuth();
   const semAnimacao = usePrefereMenosMovimento();
+  const moduloPronto = useModuleReadyState()?.ready ?? false;
   const [painel, setPainel] = useState<Painel | null>(null);
   const [ano, setAno] = useState(String(new Date().getFullYear()));
   const [desenhar, setDesenhar] = useState(false);
   const [versaoDemo, setVersaoDemo] = useState(0);
+  useModuleReady(!!painel);
 
   useEffect(() => {
     const atualizar = () => setVersaoDemo((v) => v + 1);
@@ -107,24 +158,19 @@ export default function DashboardPage() {
       .catch((e: Error) => toast.error(e.message));
   }, [ehEquipe, router, versaoDemo, ano]);
 
+  // Gráficos só depois do Effect do módulo (evita briga com blur/scale).
   useEffect(() => {
-    if (!painel || semAnimacao) return;
-    const id = requestAnimationFrame(() => setDesenhar(true));
-    return () => cancelAnimationFrame(id);
-  }, [painel, semAnimacao]);
+    if (!painel || !moduloPronto) return;
+    if (semAnimacao) {
+      setDesenhar(true);
+      return;
+    }
+    const t = window.setTimeout(() => setDesenhar(true), 480);
+    return () => window.clearTimeout(t);
+  }, [painel, moduloPronto, semAnimacao]);
 
   if (!painel) {
-    return (
-      <>
-        <PageHeader titulo="Painel" />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {[0, 1, 2, 3].map((i) => (
-            <Skeleton key={i} className="h-24 rounded-xl" />
-          ))}
-        </div>
-        <Skeleton className="mt-4 h-80 rounded-xl" />
-      </>
-    );
+    return null;
   }
 
   const linhas = STATUS_ORDEM.filter((nome) => painel.porStatus.some((s) => STATUS_LABEL[s.status] === nome));
@@ -147,14 +193,20 @@ export default function DashboardPage() {
       <PageHeader titulo="Painel" />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {kpis.map(({ titulo, valor }) => (
-          <Card key={titulo}>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{titulo}</p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums">{valor}</p>
-            </CardContent>
-          </Card>
-        ))}
+        <Effects
+          holdDelay={semAnimacao ? 0 : 90}
+          fade
+          slide={semAnimacao ? false : { direction: "right", offset: 32 }}
+        >
+          {kpis.map(({ titulo, valor }) => (
+            <Card key={titulo}>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">{titulo}</p>
+                <p className="mt-1 text-2xl font-semibold tabular-nums">{valor}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </Effects>
       </div>
 
       <div className="painel-graficos mt-4 grid gap-4 lg:grid-cols-3">
@@ -179,18 +231,20 @@ export default function DashboardPage() {
           </CardHeader>
           <CardContent>
             {desenhar || semAnimacao ? (
-              <AreaChart
-                key="area"
-                className="h-72"
-                data={painel.semana}
-                index="dia"
-                categories={linhas}
-                colors={[...cores]}
-                yAxisWidth={32}
-                allowDecimals={false}
-                showAnimation={!semAnimacao}
-                animationDuration={1200}
-              />
+              <div className={cn("h-72", !semAnimacao && "grafico-reveal-ltr")}>
+                <AreaChart
+                  key={`area-${ano}-${versaoDemo}`}
+                  className="h-72"
+                  data={painel.semana}
+                  index="dia"
+                  categories={linhas}
+                  colors={[...cores]}
+                  yAxisWidth={32}
+                  allowDecimals={false}
+                  showAnimation={false}
+                  customTooltip={TooltipGrafico}
+                />
+              </div>
             ) : (
               <div className="h-72" />
             )}
@@ -204,14 +258,15 @@ export default function DashboardPage() {
           <CardContent>
             {porStatus.length && (desenhar || semAnimacao) ? (
               <DonutChart
-                key="rosca"
+                key={`rosca-${ano}-${versaoDemo}`}
                 className="h-56"
                 data={porStatus}
                 category="total"
                 index="nome"
                 colors={[...cores]}
                 showAnimation={!semAnimacao}
-                animationDuration={1200}
+                animationDuration={1600}
+                customTooltip={TooltipGrafico}
               />
             ) : porStatus.length ? (
               <div className="h-56" />

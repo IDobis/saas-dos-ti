@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -137,7 +137,7 @@ export default function CadastrosPage() {
                 </div>
               </div>
               <Button type="submit" disabled={ocupado} className="justify-self-end">
-                {ocupado && <Loader2 className="size-4 animate-spin" />} Criar usuário
+                {ocupado && <LoaderCircle className="size-4" animate />} Criar usuário
               </Button>
             </form>
           </CardContent>

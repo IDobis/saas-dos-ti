@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -88,7 +88,7 @@ export default function LoginPage() {
                 />
               </div>
               <Button type="submit" disabled={enviando}>
-                {enviando && <Loader2 className="size-4 animate-spin" />}
+                {enviando && <LoaderCircle className="size-4" animate />}
                 {modo === "entrar" ? "Entrar" : "Criar conta"}
               </Button>
             </form>

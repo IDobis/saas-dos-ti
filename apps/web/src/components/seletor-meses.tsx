@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { Popover } from "@base-ui/react/popover";
-import { CalendarRange, ChevronLeft, ChevronRight } from "lucide-react";
+import { AnimateIcon } from "@animate-ui/react/icons";
+import { CalendarDays } from "@/components/animate-ui/icons/calendar-days";
+import { ChevronLeft } from "@/components/animate-ui/icons/chevron-left";
+import { ChevronRight } from "@/components/animate-ui/icons/chevron-right";
 import { cn } from "@/lib/utils";
 
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -85,18 +88,20 @@ export function SeletorMeses({
 
   return (
     <Popover.Root open={aberto} onOpenChange={alternar}>
+      <AnimateIcon animateOnHover asChild>
       <Popover.Trigger
         className={cn(
           "flex h-10 w-full items-center gap-2.5 rounded-lg border border-input bg-card px-3 text-left text-sm transition-colors outline-none",
           "hover:bg-muted/60 focus-visible:ring-3 focus-visible:ring-ring/50 data-popup-open:bg-muted/60 dark:bg-input/30",
         )}
       >
-        <CalendarRange className="size-4 text-muted-foreground" />
+        <CalendarDays className="size-4 text-muted-foreground" />
         <span className="flex-1 font-medium">{rotulo(de, ate)}</span>
         <span className="text-xs tabular-nums text-muted-foreground">
           {distancia(de, ate)} {distancia(de, ate) === 1 ? "mês" : "meses"}
         </span>
       </Popover.Trigger>
+      </AnimateIcon>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8} align="start" className="z-50">
           <Popover.Popup
@@ -108,13 +113,17 @@ export function SeletorMeses({
             )}
           >
             <div className="flex items-center justify-between pb-2">
+              <AnimateIcon animateOnHover asChild>
               <BotaoAno aria-label="Ano anterior" onClick={() => setAno(ano - 1)}>
                 <ChevronLeft className="size-4" />
               </BotaoAno>
+              </AnimateIcon>
               <span className="font-medium tabular-nums">{ano}</span>
+              <AnimateIcon animateOnHover asChild>
               <BotaoAno aria-label="Próximo ano" onClick={() => setAno(ano + 1)} disabled={ano >= anoMax}>
                 <ChevronRight className="size-4" />
               </BotaoAno>
+              </AnimateIcon>
             </div>
 
             <div className="grid grid-cols-3 gap-1" onMouseLeave={() => ancora && setSobre(ancora)}>

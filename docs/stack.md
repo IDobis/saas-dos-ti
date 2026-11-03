@@ -13,7 +13,7 @@
 | Tremor 3 (`@tremor/react`)              | Gráficos do painel                              |
 | Sonner                                  | Notificações (toasts) com duração de 6 segundos |
 | next-themes                             | Tema claro/escuro                               |
-| Lucide                                  | Ícones                                          |
+| Animate UI (`@animate-ui/react`)        | Ícones animados (no lugar do Lucide)            |
 | Geist / Geist Mono                      | Fontes                                          |
 
 
@@ -36,7 +36,6 @@ Observações:
 | JWT (`@nestjs/jwt`)                             | Autenticação (validade de 8 horas) |
 | bcryptjs                                        | Hash de senhas                     |
 | class-validator / class-transformer             | Validação dos dados de entrada     |
-| Talvez incrementar um Rust mesclando com o Node | NAPI-RS -- Ideia                   |
 
 
 

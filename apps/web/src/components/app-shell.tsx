@@ -2,13 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useContext, useRef, useState } from "react";
+import { useContext, useRef, useState, type ComponentType } from "react";
 import { LayoutRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { AnimatePresence, motion, MotionConfig } from "motion/react";
 import { Slider } from "@base-ui/react/slider";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
-import { LayoutDashboard, LogOut, Menu, Moon, PlusCircle, Shuffle, Sun, Ticket, Users, X } from "lucide-react";
+import { AnimateIcon } from "@animate-ui/react/icons";
+import { CirclePlus } from "@/components/animate-ui/icons/circle-plus";
+import { ClipboardList } from "@/components/animate-ui/icons/clipboard-list";
+import { LayoutDashboard } from "@/components/animate-ui/icons/layout-dashboard";
+import { LogOut } from "@/components/animate-ui/icons/log-out";
+import { Menu } from "@/components/animate-ui/icons/menu";
+import { Moon } from "@/components/animate-ui/icons/moon";
+import { Shuffle } from "@/components/animate-ui/icons/shuffle";
+import { Sun } from "@/components/animate-ui/icons/sun";
+import { Users } from "@/components/animate-ui/icons/users";
+import { X } from "@/components/animate-ui/icons/x";
 import { Logo } from "@/components/logo";
 import { SeletorMeses } from "@/components/seletor-meses";
 import { Button } from "@/components/ui/button";
@@ -25,10 +35,10 @@ import { api, ApiError } from "@/lib/api";
 import { useAuth, type Perfil } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 
-const NAV: { href: string; label: string; icon: typeof Ticket; perfis?: Perfil[] }[] = [
+const NAV: { href: string; label: string; icon: ComponentType<{ className?: string }>; perfis?: Perfil[] }[] = [
   { href: "/dashboard", label: "Painel", icon: LayoutDashboard, perfis: ["TECNICO", "ADMIN"] },
-  { href: "/chamados", label: "Chamados", icon: Ticket },
-  { href: "/chamados/novo", label: "Novo chamado", icon: PlusCircle },
+  { href: "/chamados", label: "Chamados", icon: ClipboardList },
+  { href: "/chamados/novo", label: "Novo chamado", icon: CirclePlus },
   { href: "/cadastros", label: "Cadastros", icon: Users, perfis: ["ADMIN"] },
 ];
 
@@ -40,8 +50,8 @@ function NavLinks({ onNavigate, grupo }: { onNavigate?: () => void; grupo: strin
       {NAV.filter((n) => !n.perfis || (usuario && n.perfis.includes(usuario.perfil))).map(({ href, label, icon: Icon }) => {
         const ativo = href === "/chamados" ? pathname === href : pathname.startsWith(href);
         return (
+          <AnimateIcon key={href} animateOnHover asChild>
           <Link
-            key={href}
             href={href}
             onClick={onNavigate}
             className={cn(
@@ -59,6 +69,7 @@ function NavLinks({ onNavigate, grupo }: { onNavigate?: () => void; grupo: strin
             <Icon className="relative size-4" />
             <span className="relative">{label}</span>
           </Link>
+          </AnimateIcon>
         );
       })}
     </nav>
@@ -206,10 +217,12 @@ function DemoButton() {
               {carregando === "remover" ? "Apagando..." : "Apagar testes"}
             </Button>
             <div className="flex gap-2">
+              <AnimateIcon animateOnHover asChild>
               <Button variant="outline" onClick={() => setQtd(randomizarDemo())} disabled={carregando !== null}>
                 <Shuffle />
                 Misturar
               </Button>
+              </AnimateIcon>
               <Button onClick={gerar} disabled={carregando !== null || total < 1}>
                 {carregando === "gerar" ? "Gerando..." : "Gerar"}
               </Button>
@@ -317,6 +330,7 @@ function BarraDemo({
 function ThemeToggle() {
   const { resolvedTheme, setTheme } = useTheme();
   return (
+    <AnimateIcon animateOnHover asChild>
     <Button
       variant="ghost"
       size="icon"
@@ -326,6 +340,7 @@ function ThemeToggle() {
       <Sun className="size-4 dark:hidden" />
       <Moon className="hidden size-4 dark:block" />
     </Button>
+    </AnimateIcon>
   );
 }
 
@@ -379,6 +394,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <p className="truncate font-medium">{usuario?.nome}</p>
             <p className="truncate text-xs text-muted-foreground">{usuario?.organizacao ?? usuario?.email}</p>
           </div>
+          <AnimateIcon animateOnHover asChild>
           <Button
             variant="ghost"
             size="icon"
@@ -387,14 +403,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             <LogOut className="size-4" />
           </Button>
+          </AnimateIcon>
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-sidebar px-4 lg:px-8">
+          <AnimateIcon animateOnHover asChild>
           <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Abrir menu" onClick={() => setAberto(true)}>
             <Menu className="size-4" />
           </Button>
+          </AnimateIcon>
           <div className="lg:hidden">
             <Brand />
           </div>
@@ -413,9 +432,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <aside className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col gap-6 border-r bg-sidebar py-5 lg:hidden">
                 <div className="flex items-center justify-between pr-3">
                   <Brand />
+                  <AnimateIcon animateOnHover asChild>
                   <Button variant="ghost" size="icon" aria-label="Fechar menu" onClick={() => setAberto(false)}>
                     <X className="size-4" />
                   </Button>
+                  </AnimateIcon>
                 </div>
                 <div className="px-3">
                   <NavLinks grupo="menu" onNavigate={() => setAberto(false)} />

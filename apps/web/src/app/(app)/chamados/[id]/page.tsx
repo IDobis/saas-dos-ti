@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Lock, Star } from "lucide-react";
+import { AnimateIcon } from "@animate-ui/react/icons";
+import { ArrowLeft } from "@/components/animate-ui/icons/arrow-left";
+import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
+import { Lock } from "@/components/animate-ui/icons/lock";
+import { Star } from "@/components/animate-ui/icons/star";
 import { Marcador } from "@/components/marcador";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -103,9 +107,11 @@ export default function ChamadoDetalhePage() {
 
   return (
     <div>
+      <AnimateIcon animateOnHover asChild>
       <Link href="/chamados" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="size-4" /> Chamados
       </Link>
+      </AnimateIcon>
 
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -162,7 +168,7 @@ export default function ChamadoDetalhePage() {
                         )
                   }
                 >
-                  {ocupado && <Loader2 className="size-4 animate-spin" />} Confirmar
+                  {ocupado && <LoaderCircle className="size-4" animate />} Confirmar
                 </Button>
               </div>
             </CardContent>
@@ -188,7 +194,7 @@ export default function ChamadoDetalhePage() {
                       {h.autor.nome} · {formatarDataHora(h.criadoEm)}
                       {h.interno && (
                         <span className="ml-2 inline-flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                          <Lock className="size-3" /> interno
+                          <Lock className="size-3" animateOnHover /> interno
                         </span>
                       )}
                     </p>
@@ -309,7 +315,7 @@ function Estrelas({ valor, onChange }: { valor: number; onChange?: (n: number) =
           onClick={() => onChange?.(n)}
           className="transition-transform enabled:hover:scale-110"
         >
-          <Star className={cn("size-6", n <= valor ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40")} />
+          <Star animateOnHover className={cn("size-6", n <= valor ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40")} />
         </button>
       ))}
     </div>

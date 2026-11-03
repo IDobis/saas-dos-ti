@@ -13,6 +13,7 @@ import { NativeSelect } from "@/components/native-select";
 import { PageHeader } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useModuleReady } from "@/lib/module-ready";
 import type { Setor, UsuarioLista } from "@/lib/chamados";
 
 const PERFIL_LABEL = { SOLICITANTE: "Solicitante", TECNICO: "Técnico", ADMIN: "Administrador" };
@@ -23,6 +24,8 @@ export default function CadastrosPage() {
   const [setores, setSetores] = useState<Setor[]>([]);
   const [usuarios, setUsuarios] = useState<UsuarioLista[]>([]);
   const [ocupado, setOcupado] = useState(false);
+  const [carregado, setCarregado] = useState(false);
+  useModuleReady(carregado);
 
   const carregar = useCallback(async () => {
     try {
@@ -31,6 +34,8 @@ export default function CadastrosPage() {
       setUsuarios(u);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Erro ao carregar.");
+    } finally {
+      setCarregado(true);
     }
   }, []);
 

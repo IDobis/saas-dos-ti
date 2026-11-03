@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NativeSelect } from "@/components/native-select";
 import { PageHeader } from "@/components/page-header";
 import { api } from "@/lib/api";
+import { useModuleReady } from "@/lib/module-ready";
 import { cn } from "@/lib/utils";
 import {
   PRIORIDADE_LABEL,
@@ -58,6 +59,8 @@ export default function ChamadosPage() {
   const [direcao, setDirecao] = useState<"asc" | "desc">("desc");
   const [lista, setLista] = useState<Chamado[] | null>(null);
   const [versaoDemo, setVersaoDemo] = useState(0);
+  const [cargaInicial, setCargaInicial] = useState(false);
+  useModuleReady(cargaInicial);
 
   useEffect(() => {
     const atualizar = () => setVersaoDemo((v) => v + 1);
@@ -70,8 +73,14 @@ export default function ChamadosPage() {
       api<Chamado[]>("/chamados", {
         query: { busca: busca.trim() || undefined, status: status || undefined, prioridade: prioridade || undefined },
       })
-        .then(setLista)
-        .catch((e: Error) => toast.error(e.message));
+        .then((dados) => {
+          setLista(dados);
+          setCargaInicial(true);
+        })
+        .catch((e: Error) => {
+          toast.error(e.message);
+          setCargaInicial(true);
+        });
     }, busca ? 300 : 0);
     return () => clearTimeout(t);
   }, [busca, status, prioridade, versaoDemo]);

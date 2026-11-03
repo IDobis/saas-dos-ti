@@ -264,4 +264,24 @@ html.dark body [data-sonner-toaster] [data-sonner-toast][data-type="warning"] {
   .painel-graficos [class*="BarList-bar"] {
     transition: background-color 180ms ease;
   }
+
+  /* Área do painel: revela o traçado da esquerda para a direita */
+  @keyframes grafico-reveal-ltr {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  .grafico-reveal-ltr {
+    animation: grafico-reveal-ltr 2.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grafico-reveal-ltr {
+    animation: none;
+  }
 }

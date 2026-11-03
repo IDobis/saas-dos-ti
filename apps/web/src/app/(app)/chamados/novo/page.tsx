@@ -12,17 +12,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/native-select";
 import { PageHeader } from "@/components/page-header";
 import { api } from "@/lib/api";
+import { useModuleReady } from "@/lib/module-ready";
 import { CATEGORIA_LABEL, PRIORIDADE_LABEL, type Chamado, type Setor } from "@/lib/chamados";
 
 export default function NovoChamadoPage() {
   const router = useRouter();
   const [setores, setSetores] = useState<Setor[]>([]);
   const [enviando, setEnviando] = useState(false);
+  const [carregado, setCarregado] = useState(false);
+  useModuleReady(carregado);
 
   useEffect(() => {
     api<Setor[]>("/setores")
       .then((s) => setSetores(s.filter((x) => x.ativo)))
-      .catch((e: Error) => toast.error(e.message));
+      .catch((e: Error) => toast.error(e.message))
+      .finally(() => setCarregado(true));
   }, []);
 
   async function enviar(e: React.FormEvent<HTMLFormElement>) {

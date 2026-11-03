@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { NativeSelect } from "@/components/native-select";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
+import { useModuleReady } from "@/lib/module-ready";
 import {
   CATEGORIA_LABEL,
   PRIORIDADE_LABEL,
@@ -47,6 +48,7 @@ export default function ChamadoDetalhePage() {
   const [c, setC] = useState<ChamadoDetalhe | null>(null);
   const [tecnicos, setTecnicos] = useState<UsuarioLista[]>([]);
   const [ocupado, setOcupado] = useState(false);
+  useModuleReady(!!c);
   const [justificativa, setJustificativa] = useState("");
   const [acaoJust, setAcaoJust] = useState<"cancelar" | "reabrir" | null>(null);
   const [followUp, setFollowUp] = useState("");

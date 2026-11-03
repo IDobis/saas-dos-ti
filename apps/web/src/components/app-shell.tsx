@@ -2,14 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useContext, useRef, useState, type ComponentType } from "react";
-import { LayoutRouterContext } from "next/dist/shared/lib/app-router-context.shared-runtime";
-import { AnimatePresence, motion, MotionConfig } from "motion/react";
+import { useState, type ComponentType } from "react";
+import { motion } from "motion/react";
 import { Slider } from "@base-ui/react/slider";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { AnimateIcon } from "@animate-ui/react/icons";
+import { Effect } from "@animate-ui/react/primitives/effects/effect";
+import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
 import { CirclePlus } from "@/components/animate-ui/icons/circle-plus";
+import { ModuleReadyProvider, useModuleReadyState } from "@/lib/module-ready";
 import { ClipboardList } from "@/components/animate-ui/icons/clipboard-list";
 import { LayoutDashboard } from "@/components/animate-ui/icons/layout-dashboard";
 import { LogOut } from "@/components/animate-ui/icons/log-out";
@@ -344,28 +346,39 @@ function ThemeToggle() {
   );
 }
 
-function PaginaCongelada({ children }: { children: React.ReactNode }) {
-  const contexto = useContext(LayoutRouterContext);
-  const congelado = useRef(contexto).current;
-  return <LayoutRouterContext.Provider value={congelado}>{children}</LayoutRouterContext.Provider>;
-}
-
 function TransicaoPagina({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const modulo = pathname.split("/")[1] ?? pathname;
   return (
-    <MotionConfig reducedMotion="user">
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.22, ease: "easeInOut" }}
-        >
-          <PaginaCongelada>{children}</PaginaCongelada>
-        </motion.div>
-      </AnimatePresence>
-    </MotionConfig>
+    <ModuleReadyProvider key={modulo} modulo={modulo}>
+      <ModuleReveal>{children}</ModuleReveal>
+    </ModuleReadyProvider>
+  );
+}
+
+/** Loading até a página sinalizar; aí o Effect anima o módulo já com dados. */
+function ModuleReveal({ children }: { children: React.ReactNode }) {
+  const ready = useModuleReadyState()?.ready ?? false;
+  return (
+    <>
+      {!ready && (
+        <div className="flex min-h-[50vh] items-center justify-center">
+          <LoaderCircle className="size-6 text-muted-foreground" animate />
+        </div>
+      )}
+      <Effect
+        fade
+        blur
+        slide
+        zoom
+        // sobrescreve o animate interno do Effect: só revela depois do carregamento
+        animate={ready ? "visible" : "hidden"}
+        className={ready ? undefined : "pointer-events-none absolute h-0 w-full overflow-hidden"}
+        aria-hidden={!ready}
+      >
+        {children}
+      </Effect>
+    </>
   );
 }
 

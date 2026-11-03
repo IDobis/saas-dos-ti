@@ -25,9 +25,9 @@ const animations = {
           opacity: [0, 1],
           pathLength: [0, 1],
           transition: {
-            duration: 0.6,
+            duration: 0.28,
             ease: 'easeInOut',
-            delay: (i - 1) * 0.15,
+            delay: (i - 1) * 0.04,
           },
         },
       };

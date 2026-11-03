@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useState, type ComponentType } from "react";
 import { motion } from "motion/react";
 import { Slider } from "@base-ui/react/slider";
-import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { AnimateIcon } from "@animate-ui/react/icons";
 import { Effect } from "@animate-ui/react/primitives/effects/effect";
@@ -16,13 +15,12 @@ import { ClipboardList } from "@/components/animate-ui/icons/clipboard-list";
 import { LayoutDashboard } from "@/components/animate-ui/icons/layout-dashboard";
 import { LogOut } from "@/components/animate-ui/icons/log-out";
 import { Menu } from "@/components/animate-ui/icons/menu";
-import { Moon } from "@/components/animate-ui/icons/moon";
 import { Shuffle } from "@/components/animate-ui/icons/shuffle";
-import { Sun } from "@/components/animate-ui/icons/sun";
 import { Users } from "@/components/animate-ui/icons/users";
 import { X } from "@/components/animate-ui/icons/x";
 import { Logo } from "@/components/logo";
 import { SeletorMeses } from "@/components/seletor-meses";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -326,23 +324,6 @@ function BarraDemo({
         </Slider.Control>
       </Slider.Root>
     </div>
-  );
-}
-
-function ThemeToggle() {
-  const { resolvedTheme, setTheme } = useTheme();
-  return (
-    <AnimateIcon animateOnHover asChild>
-    <Button
-      variant="ghost"
-      size="icon"
-      aria-label="Alternar tema"
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-    >
-      <Sun className="size-4 dark:hidden" />
-      <Moon className="hidden size-4 dark:block" />
-    </Button>
-    </AnimateIcon>
   );
 }
 

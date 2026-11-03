@@ -371,6 +371,7 @@ function TransicaoPagina({ children }: { children: React.ReactNode }) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [aberto, setAberto] = useState(false);
+  const [confirmarSaida, setConfirmarSaida] = useState(false);
   const { usuario, sair } = useAuth();
   const iniciais = (usuario?.nome ?? "?")
     .split(" ")
@@ -381,6 +382,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen bg-background">
+      <Dialog open={confirmarSaida} onOpenChange={setConfirmarSaida}>
+        <DialogContent className="sm:max-w-sm" showCloseButton={false}>
+          <DialogHeader>
+            <DialogTitle>Sair da conta?</DialogTitle>
+            <DialogDescription>
+              Você precisará entrar de novo com e-mail e senha para continuar.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmarSaida(false)}>
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                setConfirmarSaida(false);
+                sair();
+              }}
+            >
+              Sair
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col gap-6 border-r bg-sidebar py-5 lg:flex">
         <Brand />
         <div className="flex-1 px-3">
@@ -399,7 +425,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             variant="ghost"
             size="icon"
             aria-label="Sair"
-            onClick={sair}
+            onClick={() => setConfirmarSaida(true)}
           >
             <LogOut className="size-4" />
           </Button>

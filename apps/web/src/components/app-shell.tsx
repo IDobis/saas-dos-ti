@@ -160,6 +160,7 @@ function DemoButton() {
   }
 
   async function remover() {
+    if (!window.confirm("Apagar todos os chamados de teste (e o histórico deles)? Isso não pode ser desfeito.")) return;
     setCarregando("remover");
     try {
       await api("/chamados/demo", { method: "DELETE" });

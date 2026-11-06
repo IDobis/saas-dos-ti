@@ -34,7 +34,7 @@ Observações:
 | Prisma 6                                        | ORM e migrations                   |
 | PostgreSQL 18                                   | Banco de dados (instalação local)  |
 | JWT (`@nestjs/jwt`)                             | Autenticação (validade de 8 horas) |
-| bcryptjs                                        | Hash de senhas                     |
+| bcrypt                                        | Hash de senhas                     |
 | class-validator / class-transformer             | Validação dos dados de entrada     |
 
 

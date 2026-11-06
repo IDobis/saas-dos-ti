@@ -1,0 +1,702 @@
+{
+  "executadoEm": "2026-11-06T20:42:15.445Z",
+  "api": "http://localhost:3001/api",
+  "resultados": [
+    {
+      "caso": "CT01",
+      "descricao": "Cadastrar organização e administrador",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT01",
+      "descricao": "Quem cadastra a organização é administrador",
+      "ok": true,
+      "observado": "ADMIN"
+    },
+    {
+      "caso": "CT01",
+      "descricao": "Token dá acesso a /auth/me",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT01",
+      "descricao": "Rota protegida sem token é recusada",
+      "ok": true,
+      "observado": "HTTP 401 (Token ausente)"
+    },
+    {
+      "caso": "CT01",
+      "descricao": "Senha errada é recusada",
+      "ok": true,
+      "observado": "HTTP 401 (E-mail ou senha inválidos)"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Organização nasce com o setor TI",
+      "ok": true,
+      "observado": "1 setor(es)"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Admin cria setor",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Setor com nome repetido é recusado",
+      "ok": true,
+      "observado": "HTTP 409 (Setor já existe)"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Admin cria usuário TECNICO",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Técnico guarda a especialidade",
+      "ok": true,
+      "observado": "Redes"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Admin cria usuário SOLICITANTE",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Admin cria usuário SOLICITANTE",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT02",
+      "descricao": "Técnico e solicitantes fazem login",
+      "ok": true,
+      "observado": "tokens emitidos"
+    },
+    {
+      "caso": "CT03",
+      "descricao": "Solicitante abre chamado",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT03",
+      "descricao": "Status inicial é ABERTO (RN01)",
+      "ok": true,
+      "observado": "ABERTO"
+    },
+    {
+      "caso": "CT03",
+      "descricao": "Chamado recebe número",
+      "ok": true,
+      "observado": "#543"
+    },
+    {
+      "caso": "CT03",
+      "descricao": "Prioridade média: prazo de 24 h (RN02)",
+      "ok": true,
+      "observado": "24.00 h"
+    },
+    {
+      "caso": "CT03",
+      "descricao": "Prioridade crítica: prazo de 4 h (RN02)",
+      "ok": true,
+      "observado": "4.00 h"
+    },
+    {
+      "caso": "CT03",
+      "descricao": "Abertura gera histórico CRIACAO (RN05)",
+      "ok": true,
+      "observado": "CRIACAO"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por status",
+      "ok": true,
+      "observado": "3 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por prioridade",
+      "ok": true,
+      "observado": "1 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por categoria",
+      "ok": true,
+      "observado": "1 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por setor",
+      "ok": true,
+      "observado": "3 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por solicitante",
+      "ok": true,
+      "observado": "2 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por busca no título",
+      "ok": true,
+      "observado": "1 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por busca por número",
+      "ok": true,
+      "observado": "1 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Filtro por período sem chamados",
+      "ok": true,
+      "observado": "0 resultado(s)"
+    },
+    {
+      "caso": "CT04",
+      "descricao": "Solicitante só vê os próprios chamados (RN09)",
+      "ok": true,
+      "observado": "2 chamado(s)"
+    },
+    {
+      "caso": "CT05",
+      "descricao": "Iniciar atendimento sem técnico é recusado (RN03)",
+      "ok": true,
+      "observado": "HTTP 400 (Atribua um técnico antes de iniciar o atendimento)"
+    },
+    {
+      "caso": "CT05",
+      "descricao": "Solicitante não atribui técnico",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT05",
+      "descricao": "Solicitante não pode ser escolhido como técnico",
+      "ok": true,
+      "observado": "HTTP 400 (Técnico inválido)"
+    },
+    {
+      "caso": "CT05",
+      "descricao": "Técnico é atribuído",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT05",
+      "descricao": "Filtro por técnico",
+      "ok": true,
+      "observado": "1 resultado(s)"
+    },
+    {
+      "caso": "CT05",
+      "descricao": "Atribuição gera histórico (RN05)",
+      "ok": true,
+      "observado": "CRIACAO,ATRIBUICAO"
+    },
+    {
+      "caso": "CT06",
+      "descricao": "Transição direta ABERTO -> FECHADO é recusada (RN04)",
+      "ok": true,
+      "observado": "HTTP 400 (Transição inválida: ABERTO → FECHADO)"
+    },
+    {
+      "caso": "CT06",
+      "descricao": "ABERTO -> EM_ANDAMENTO",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT06",
+      "descricao": "Solicitante não resolve chamado (RN09)",
+      "ok": true,
+      "observado": "HTTP 403 (Apenas a equipe de TI pode alterar este status)"
+    },
+    {
+      "caso": "CT06",
+      "descricao": "EM_ANDAMENTO -> AGUARDANDO",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT06",
+      "descricao": "AGUARDANDO -> EM_ANDAMENTO",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT06",
+      "descricao": "Cada mudança grava histórico com autor e data (RF08, RN05)",
+      "ok": true,
+      "observado": "3 registros, autor tecnico CT"
+    },
+    {
+      "caso": "CT07",
+      "descricao": "Solicitante comenta",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT07",
+      "descricao": "Técnico registra nota interna",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT07",
+      "descricao": "Solicitante não consegue criar nota interna",
+      "ok": true,
+      "observado": "interno=false"
+    },
+    {
+      "caso": "CT07",
+      "descricao": "Solicitante não vê a nota interna (RN12)",
+      "ok": true,
+      "observado": "7 registros visíveis"
+    },
+    {
+      "caso": "CT07",
+      "descricao": "Técnico vê a nota interna (RN12)",
+      "ok": true,
+      "observado": "8 registros visíveis"
+    },
+    {
+      "caso": "CT08",
+      "descricao": "Avaliar antes da resolução é recusado (RN07)",
+      "ok": true,
+      "observado": "HTTP 400 (Só é possível avaliar após a resolução)"
+    },
+    {
+      "caso": "CT08",
+      "descricao": "EM_ANDAMENTO -> RESOLVIDO",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT08",
+      "descricao": "Técnico não avalia (RN07)",
+      "ok": true,
+      "observado": "HTTP 403 (Apenas o solicitante pode avaliar)"
+    },
+    {
+      "caso": "CT08",
+      "descricao": "Nota fora de 1 a 5 é recusada",
+      "ok": true,
+      "observado": "HTTP 400 (nota must not be greater than 5)"
+    },
+    {
+      "caso": "CT08",
+      "descricao": "Solicitante avalia",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT08",
+      "descricao": "Segunda avaliação é recusada",
+      "ok": true,
+      "observado": "HTTP 409 (Chamado já avaliado)"
+    },
+    {
+      "caso": "CT09",
+      "descricao": "Técnico consulta o painel",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT09",
+      "descricao": "Painel conta 1 concluído (RN14)",
+      "ok": true,
+      "observado": "concluidos=1"
+    },
+    {
+      "caso": "CT09",
+      "descricao": "Painel calcula tempo médio (RF11)",
+      "ok": true,
+      "observado": "0 min"
+    },
+    {
+      "caso": "CT09",
+      "descricao": "Painel calcula % no prazo",
+      "ok": true,
+      "observado": "100%"
+    },
+    {
+      "caso": "CT09",
+      "descricao": "Período sem concluídos: indicadores zerados (RN14)",
+      "ok": true,
+      "observado": "concluidos=0, tempo=null"
+    },
+    {
+      "caso": "CT10",
+      "descricao": "API entrega o prazo usado pelo semáforo (RF09)",
+      "ok": true,
+      "observado": "2026-11-07T00:42:17.972Z"
+    },
+    {
+      "caso": "CT10",
+      "descricao": "Chamado resolvido guarda data de resolução",
+      "ok": true,
+      "observado": "2026-11-06T20:42:18.287Z"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Cadastrar segunda organização",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Solicitante não ativa manutenção",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Admin ativa manutenção",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Situação fica ativa com o motivo",
+      "ok": true,
+      "observado": "ativa=true"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Abrir chamado é bloqueado",
+      "ok": true,
+      "observado": "HTTP 503 (Sistema em manutenção: Teste CT. Apenas consultas estão liberadas.)"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Mudar status é bloqueado",
+      "ok": true,
+      "observado": "HTTP 503 (Sistema em manutenção: Teste CT. Apenas consultas estão liberadas.)"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Cadastro é bloqueado",
+      "ok": true,
+      "observado": "HTTP 503 (Sistema em manutenção: Teste CT. Apenas consultas estão liberadas.)"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Consulta continua liberada",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Login continua liberado",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Outra organização não é afetada",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Admin encerra manutenção",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT11",
+      "descricao": "Escrita volta a funcionar",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Solicitante não reabre (RN13)",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Reabrir sem causa é recusado",
+      "ok": true,
+      "observado": "HTTP 400 (causa must be one of the following values: VOLTOU_A_FALHAR, SOLUCAO_INCOMPLETA, USUARIO_NAO_VALIDOU)"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Causa fora da lista é recusada",
+      "ok": true,
+      "observado": "HTTP 400 (causa must be one of the following values: VOLTOU_A_FALHAR, SOLUCAO_INCOMPLETA, USUARIO_NAO_VALIDOU)"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Só reabre chamado resolvido ou fechado",
+      "ok": true,
+      "observado": "HTTP 400 (Só é possível reabrir chamados resolvidos ou fechados)"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Técnico reabre com causa",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Volta para EM_ANDAMENTO sem data de resolução",
+      "ok": true,
+      "observado": "EM_ANDAMENTO, resolvidoEm=null"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Reabertura reaplica o prazo (RN13)",
+      "ok": true,
+      "observado": "24.00 h"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Histórico guarda a causa",
+      "ok": true,
+      "observado": "Reaberto (voltou a falhar): A fila travou de novo."
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Indicador de reincidência responde",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Reincidência soma por causa, categoria e técnico",
+      "ok": true,
+      "observado": "total=1, categoria=HARDWARE, técnico=tecnico CT"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Reincidência é restrita à equipe",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Fechar chamado resolvido (RN06)",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT12",
+      "descricao": "Chamado fechado não recebe follow-up (RN06)",
+      "ok": true,
+      "observado": "HTTP 400 (Chamado encerrado não pode ser alterado)"
+    },
+    {
+      "caso": "CT13",
+      "descricao": "Sem título é recusado",
+      "ok": true,
+      "observado": "HTTP 400 (titulo must be shorter than or equal to 160 characters; titulo must be longer than or equal to 3 characters; titulo must be a string)"
+    },
+    {
+      "caso": "CT13",
+      "descricao": "Título curto é recusado",
+      "ok": true,
+      "observado": "HTTP 400 (titulo must be longer than or equal to 3 characters)"
+    },
+    {
+      "caso": "CT13",
+      "descricao": "Categoria inválida é recusada",
+      "ok": true,
+      "observado": "HTTP 400 (categoria must be one of the following values: HARDWARE, SOFTWARE, REDE, ACESSO, OUTROS)"
+    },
+    {
+      "caso": "CT13",
+      "descricao": "Setor inexistente é recusado",
+      "ok": true,
+      "observado": "HTTP 400 (Setor inválido)"
+    },
+    {
+      "caso": "CT14",
+      "descricao": "Solicitante não cria setor",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT14",
+      "descricao": "Técnico não cria setor",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT14",
+      "descricao": "Solicitante não cria usuário",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT14",
+      "descricao": "Solicitante não abre o painel",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT14",
+      "descricao": "Técnico não gera demonstração",
+      "ok": true,
+      "observado": "HTTP 403 (Sem permissão para esta ação)"
+    },
+    {
+      "caso": "CT14",
+      "descricao": "Solicitante não abre chamado de outra pessoa",
+      "ok": true,
+      "observado": "HTTP 403 (Sem acesso a este chamado)"
+    },
+    {
+      "caso": "CT15",
+      "descricao": "Cancelar sem justificativa é recusado (RN10)",
+      "ok": true,
+      "observado": "HTTP 400 (Informe a justificativa do cancelamento)"
+    },
+    {
+      "caso": "CT15",
+      "descricao": "Justificativa só com espaços é recusada (RN10)",
+      "ok": true,
+      "observado": "HTTP 400 (Informe a justificativa do cancelamento)"
+    },
+    {
+      "caso": "CT15",
+      "descricao": "Solicitante não cancela chamado de outra pessoa",
+      "ok": true,
+      "observado": "HTTP 403 (Forbidden)"
+    },
+    {
+      "caso": "CT15",
+      "descricao": "Solicitante cancela com justificativa (RF16)",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT15",
+      "descricao": "Justificativa fica no histórico",
+      "ok": true,
+      "observado": "Status: ABERTO → CANCELADO (Problema resolvido sozinho)"
+    },
+    {
+      "caso": "CT15",
+      "descricao": "Chamado fechado não é cancelado (RN10)",
+      "ok": true,
+      "observado": "HTTP 400 (Transição inválida: FECHADO → CANCELADO)"
+    },
+    {
+      "caso": "CT16",
+      "descricao": "Outra organização não abre o chamado",
+      "ok": true,
+      "observado": "HTTP 404 (Chamado não encontrado)"
+    },
+    {
+      "caso": "CT16",
+      "descricao": "Outra organização não lista o chamado (RNF08)",
+      "ok": true,
+      "observado": "0 chamado(s)"
+    },
+    {
+      "caso": "CT17",
+      "descricao": "Setor não tem rota de exclusão (RN11)",
+      "ok": true,
+      "observado": "HTTP 404 (Cannot DELETE /api/setores/80d8d1c4-85d8-4c61-9ef6-8f0e2358baef)"
+    },
+    {
+      "caso": "CT17",
+      "descricao": "Admin inativa setor",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT17",
+      "descricao": "Setor fica inativo",
+      "ok": true,
+      "observado": "ativo=false"
+    },
+    {
+      "caso": "CT17",
+      "descricao": "Setor inativo não recebe chamado",
+      "ok": true,
+      "observado": "HTTP 400 (Setor inválido)"
+    },
+    {
+      "caso": "CT17",
+      "descricao": "Admin inativa usuário",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT17",
+      "descricao": "Token do usuário inativado deixa de valer",
+      "ok": true,
+      "observado": "HTTP 401 (Usuário inativo ou removido)"
+    },
+    {
+      "caso": "CT18",
+      "descricao": "Admin gera demonstração",
+      "ok": true,
+      "observado": "HTTP 201"
+    },
+    {
+      "caso": "CT18",
+      "descricao": "Cria a quantidade pedida",
+      "ok": true,
+      "observado": "criados=5"
+    },
+    {
+      "caso": "CT18",
+      "descricao": "Chamado de demonstração não tem prazo de SLA",
+      "ok": true,
+      "observado": "5 sem prazo"
+    },
+    {
+      "caso": "CT18",
+      "descricao": "Admin apaga a demonstração",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT18",
+      "descricao": "Apaga só os chamados de demonstração",
+      "ok": true,
+      "observado": "removidos=5"
+    },
+    {
+      "caso": "CT18",
+      "descricao": "Chamado real continua existindo",
+      "ok": true,
+      "observado": "HTTP 200"
+    },
+    {
+      "caso": "CT19",
+      "descricao": "Usuário inativado não faz login",
+      "ok": true,
+      "observado": "HTTP 401"
+    },
+    {
+      "caso": "CT19",
+      "descricao": "Sexta tentativa no minuto recebe 429",
+      "ok": true,
+      "observado": "401,201,201,201,201,429"
+    },
+    {
+      "caso": "CT19",
+      "descricao": "/auth/me fica fora do limite",
+      "ok": true,
+      "observado": "10 chamadas: 200"
+    }
+  ]
+}

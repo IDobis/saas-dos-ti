@@ -1,5 +1,7 @@
 # Stack
 
+Justificativas, diagrama e organização das pastas estão em [arquitetura](arquitetura.md).
+
 ## Front-end (`apps/web`)
 
 
@@ -34,7 +36,8 @@ Observações:
 | Prisma 6                                        | ORM e migrations                   |
 | PostgreSQL 18                                   | Banco de dados (instalação local)  |
 | JWT (`@nestjs/jwt`)                             | Autenticação (validade de 8 horas) |
-| bcrypt                                        | Hash de senhas                     |
+| bcrypt                                          | Hash de senhas                     |
+| `@nestjs/throttler`                             | Limite de 5 tentativas/min em `/auth` |
 | class-validator / class-transformer             | Validação dos dados de entrada     |
 
 

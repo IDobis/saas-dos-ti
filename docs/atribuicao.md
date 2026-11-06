@@ -1,5 +1,9 @@
 # Atividades
 
+Lista de ideias do time, mantida como roteiro de evolução. Prazos, situação e critérios de conclusão ficam no [backlog](backlog.md).
+
+Marcações: `[A]` Arthur (concluídas em 06/11/2026, commit `947e953`); `[B]` Bryan; `[ ]` sem responsável definido.
+
 [ ]Anexos no chamado
 O modelo Anexo já existe no Prisma (RF14), mas a UI não sobe arquivo. Prints, logs e PDF no chamado e no histórico. É o que mais parece “sistema de TI de verdade” numa banca.
 

@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { CurrentUser, Public, UsuarioLogado } from '../common/auth';
 import { LoginDto, RegistrarDto } from './auth.dto';
 import { AuthService } from './auth.service';
 
+@UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
@@ -19,6 +21,7 @@ export class AuthController {
     return this.auth.login(dto);
   }
 
+  @SkipThrottle()
   @Get('me')
   me(@CurrentUser() user: UsuarioLogado) {
     return this.auth.me(user.id);

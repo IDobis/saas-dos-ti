@@ -14,7 +14,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { Perfil } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { IsEmail, IsEnum, IsOptional, IsString, IsUUID, MaxLength, MinLength } from 'class-validator';
 import { CurrentUser, Roles, UsuarioLogado } from '../common/auth';
 import { PrismaService } from '../prisma/prisma.service';

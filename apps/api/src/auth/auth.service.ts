@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Perfil, Prioridade } from '@prisma/client';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { JwtPayload } from '../common/auth';
 import { PrismaService } from '../prisma/prisma.service';
 import { LoginDto, RegistrarDto } from './auth.dto';

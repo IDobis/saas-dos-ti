@@ -160,6 +160,7 @@ model Chamado {
   categoria      Categoria
   prioridade     Prioridade
   status         StatusChamado @default(ABERTO)
+  demo           Boolean       @default(false) // gerado pelo botão Demo; só estes são apagados por ele
   prazoResolucao DateTime?
   abertoEm       DateTime      @default(now())
   resolvidoEm    DateTime?

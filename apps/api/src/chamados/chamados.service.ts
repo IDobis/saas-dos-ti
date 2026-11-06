@@ -401,6 +401,7 @@ export class ChamadosService {
           solicitanteId: user.id,
           tecnicoId: status === ABERTO || status === CANCELADO ? null : (tecnico?.id ?? null),
           setorId: setor.id,
+          demo: true,
           titulo: `[Demo] ${modelo.titulo}`,
           descricao: 'Chamado gerado pelo botão de demonstração, para testar o painel e a listagem com dados.',
           categoria: modelo.categoria,
@@ -427,7 +428,7 @@ export class ChamadosService {
 
   async removerDemo(user: UsuarioLogado) {
     const chamados = await this.prisma.chamado.findMany({
-      where: { organizacaoId: user.organizacaoId, titulo: { startsWith: '[Demo]' } },
+      where: { organizacaoId: user.organizacaoId, demo: true },
       select: { id: true },
     });
     const ids = chamados.map((c) => c.id);
@@ -440,15 +441,7 @@ export class ChamadosService {
       this.prisma.chamado.deleteMany({ where: { id: { in: ids } } }),
     ]);
 
-    const setorDemo = await this.prisma.setor.findFirst({
-      where: { organizacaoId: user.organizacaoId, nome: 'Demo' },
-      include: { _count: { select: { chamados: true, usuarios: true, equipamentos: true } } },
-    });
-    const vazio = setorDemo && setorDemo._count.chamados === 0 && setorDemo._count.usuarios === 0 && setorDemo._count.equipamentos === 0;
-    if (setorDemo && vazio) {
-      await this.prisma.setor.delete({ where: { id: setorDemo.id } });
-    }
-
+    // RN11: setores nunca são apagados aqui; o setor "Demo", se foi criado, fica e pode ser inativado.
     return { removidos: ids.length };
   }
 }

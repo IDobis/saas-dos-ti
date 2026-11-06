@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Categoria, Perfil, Prioridade, Prisma, StatusChamado, TipoHistorico } from '@prisma/client';
+import { CausaReabertura, Categoria, Perfil, Prioridade, Prisma, StatusChamado, TipoHistorico } from '@prisma/client';
 import { UsuarioLogado } from '../common/auth';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -29,6 +29,12 @@ const TRANSICOES: Record<StatusChamado, StatusChamado[]> = {
   RESOLVIDO: [FECHADO],
   FECHADO: [],
   CANCELADO: [],
+};
+
+const CAUSA_LABEL: Record<CausaReabertura, string> = {
+  VOLTOU_A_FALHAR: 'voltou a falhar',
+  SOLUCAO_INCOMPLETA: 'solução incompleta',
+  USUARIO_NAO_VALIDOU: 'usuário não validou',
 };
 
 const equipe = (u: UsuarioLogado) => u.perfil === Perfil.TECNICO || u.perfil === Perfil.ADMIN;
@@ -267,7 +273,9 @@ export class ChamadosService {
           create: {
             autorId: user.id,
             tipo: TipoHistorico.REABERTURA,
-            conteudo: `Reaberto: ${dto.justificativa.trim()}`,
+            conteudo: `Reaberto (${CAUSA_LABEL[dto.causa]}): ${dto.justificativa.trim()}`,
+            causaReabertura: dto.causa,
+            tecnicoResponsavelId: chamado.tecnicoId,
           },
         },
       },

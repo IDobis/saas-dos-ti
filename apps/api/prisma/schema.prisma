@@ -48,6 +48,12 @@ enum TipoHistorico {
   CANCELAMENTO
 }
 
+enum CausaReabertura {
+  VOLTOU_A_FALHAR
+  SOLUCAO_INCOMPLETA
+  USUARIO_NAO_VALIDOU
+}
+
 // ---------- Multitenancy (RNF08) ----------
 
 model Organizacao {
@@ -55,6 +61,11 @@ model Organizacao {
   nome      String
   ativa     Boolean  @default(true)
   criadoEm  DateTime @default(now())
+
+  // Modo manutenção: ativo enquanto manutencaoDesde estiver preenchido
+  manutencaoDesde     DateTime?
+  manutencaoMotivo    String?
+  manutencaoPrevisao  DateTime?
 
   setores       Setor[]
   usuarios      Usuario[]
@@ -178,6 +189,10 @@ model HistoricoChamado {
   conteudo   String?
   interno    Boolean       @default(false) // RN12: visível só a técnicos/admin
   criadoEm   DateTime      @default(now())
+
+  // Só em REABERTURA: causa escolhida e técnico que tinha resolvido (para a reincidência)
+  causaReabertura       CausaReabertura?
+  tecnicoResponsavelId  String?
 
   chamado Chamado @relation(fields: [chamadoId], references: [id], onDelete: Cascade)
   autor   Usuario @relation(fields: [autorId], references: [id])

@@ -1,4 +1,4 @@
-import { Categoria, Prioridade, StatusChamado } from '@prisma/client';
+import { CausaReabertura, Categoria, Prioridade, StatusChamado } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsBoolean,
@@ -118,6 +118,9 @@ export class DemoDto {
 }
 
 export class ReabrirDto {
+  @IsEnum(CausaReabertura)
+  causa!: CausaReabertura;
+
   @IsString() @MinLength(3) @MaxLength(1000)
   justificativa!: string;
 }

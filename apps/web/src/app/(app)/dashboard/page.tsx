@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
+import { IndicadorReincidencia } from "@/components/reincidencia";
+import { ChamadosEmRisco } from "@/components/sla";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useModuleReady, useModuleReadyState } from "@/lib/module-ready";
@@ -207,6 +209,14 @@ export default function DashboardPage() {
             </Card>
           ))}
         </Effects>
+      </div>
+
+      <div className="mt-4">
+        <ChamadosEmRisco versao={versaoDemo} />
+      </div>
+
+      <div className="mt-4">
+        <IndicadorReincidencia versao={versaoDemo} />
       </div>
 
       <div className="painel-graficos mt-4 grid gap-4 lg:grid-cols-3">

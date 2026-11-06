@@ -9,6 +9,7 @@ import { ChevronUp } from "@/components/animate-ui/icons/chevron-up";
 import { Plus } from "@/components/animate-ui/icons/plus";
 import { Search } from "@/components/animate-ui/icons/search";
 import { Marcador } from "@/components/marcador";
+import { SemaforoSla } from "@/components/sla";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ import { NativeSelect } from "@/components/native-select";
 import { PageHeader } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useModuleReady } from "@/lib/module-ready";
+import { SLA_ORDEM, situacaoSla, useAgora } from "@/lib/sla";
 import { cn } from "@/lib/utils";
 import {
   PRIORIDADE_LABEL,
@@ -29,7 +31,7 @@ import {
   type Status,
 } from "@/lib/chamados";
 
-type Coluna = "numero" | "titulo" | "solicitante" | "tecnico" | "prioridade" | "status" | "aberto";
+type Coluna = "numero" | "titulo" | "solicitante" | "tecnico" | "prioridade" | "status" | "sla" | "aberto";
 
 const PRIORIDADE_ORDEM: Record<Prioridade, number> = { BAIXA: 0, MEDIA: 1, ALTA: 2, CRITICA: 3 };
 const STATUS_ORDEM: Record<Status, number> = {
@@ -48,6 +50,10 @@ function valorOrdenacao(c: Chamado, coluna: Coluna): string | number {
   if (coluna === "tecnico") return c.tecnico?.nome ?? "Sem técnico";
   if (coluna === "prioridade") return PRIORIDADE_ORDEM[c.prioridade];
   if (coluna === "status") return STATUS_ORDEM[c.status];
+  if (coluna === "sla") {
+    const s = situacaoSla(c);
+    return SLA_ORDEM[s.estado] * 1e13 + (s.restanteMs ?? 0);
+  }
   return new Date(c.abertoEm).getTime();
 }
 
@@ -61,6 +67,7 @@ export default function ChamadosPage() {
   const [versaoDemo, setVersaoDemo] = useState(0);
   const [cargaInicial, setCargaInicial] = useState(false);
   useModuleReady(cargaInicial);
+  const agora = useAgora(60_000);
 
   useEffect(() => {
     const atualizar = () => setVersaoDemo((v) => v + 1);
@@ -163,6 +170,7 @@ export default function ChamadosPage() {
                     <Cabecalho coluna="tecnico" ativa={coluna} direcao={direcao} onClick={ordenar} className="hidden lg:table-cell">Técnico</Cabecalho>
                     <Cabecalho coluna="prioridade" ativa={coluna} direcao={direcao} onClick={ordenar}>Prioridade</Cabecalho>
                     <Cabecalho coluna="status" ativa={coluna} direcao={direcao} onClick={ordenar}>Status</Cabecalho>
+                    <Cabecalho coluna="sla" ativa={coluna} direcao={direcao} onClick={ordenar}>SLA</Cabecalho>
                     <Cabecalho coluna="aberto" ativa={coluna} direcao={direcao} onClick={ordenar} className="hidden sm:table-cell">Aberto</Cabecalho>
                   </tr>
                 </thead>
@@ -186,6 +194,9 @@ export default function ChamadosPage() {
                         </td>
                         <td className="px-4 py-3">
                           <Marcador cor={STATUS_PONTO[c.status]}>{STATUS_LABEL[c.status]}</Marcador>
+                        </td>
+                        <td className="whitespace-nowrap px-4 py-3">
+                          <SemaforoSla chamado={c} agora={agora} />
                         </td>
                         <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
                           {formatarData(c.abertoEm)}

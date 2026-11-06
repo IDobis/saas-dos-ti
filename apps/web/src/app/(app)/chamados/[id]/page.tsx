@@ -10,6 +10,8 @@ import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
 import { Lock } from "@/components/animate-ui/icons/lock";
 import { Star } from "@/components/animate-ui/icons/star";
 import { Marcador } from "@/components/marcador";
+import { CAUSA_LABEL, type CausaReabertura } from "@/components/reincidencia";
+import { ContagemSla } from "@/components/sla";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -51,6 +53,7 @@ export default function ChamadoDetalhePage() {
   useModuleReady(!!c);
   const [justificativa, setJustificativa] = useState("");
   const [acaoJust, setAcaoJust] = useState<"cancelar" | "reabrir" | null>(null);
+  const [causa, setCausa] = useState<CausaReabertura | "">("");
   const [followUp, setFollowUp] = useState("");
   const [interno, setInterno] = useState(false);
   const [nota, setNota] = useState(0);
@@ -81,6 +84,7 @@ export default function ChamadoDetalhePage() {
       await fn();
       toast.success(sucesso);
       setJustificativa("");
+      setCausa("");
       setAcaoJust(null);
       await carregar();
     } catch (e) {
@@ -150,14 +154,22 @@ export default function ChamadoDetalhePage() {
           <Card>
             <CardContent className="grid gap-3">
               <p className="text-sm font-medium">
-                {acaoJust === "cancelar" ? "Justificativa do cancelamento" : "Motivo da reabertura"}
+                {acaoJust === "cancelar" ? "Justificativa do cancelamento" : "Causa e detalhes da reabertura"}
               </p>
+              {acaoJust === "reabrir" && (
+                <NativeSelect value={causa} onChange={(e) => setCausa(e.target.value as CausaReabertura)}>
+                  <option value="" disabled>Selecione a causa</option>
+                  {(Object.keys(CAUSA_LABEL) as CausaReabertura[]).map((k) => (
+                    <option key={k} value={k}>{CAUSA_LABEL[k]}</option>
+                  ))}
+                </NativeSelect>
+              )}
               <Textarea rows={3} value={justificativa} onChange={(e) => setJustificativa(e.target.value)} />
               <div className="flex justify-end gap-2">
                 <Button variant="ghost" size="sm" onClick={() => setAcaoJust(null)}>Voltar</Button>
                 <Button
                   size="sm"
-                  disabled={ocupado || justificativa.trim().length < 3}
+                  disabled={ocupado || justificativa.trim().length < 3 || (acaoJust === "reabrir" && !causa)}
                   onClick={() =>
                     acaoJust === "cancelar"
                       ? executar(
@@ -165,7 +177,7 @@ export default function ChamadoDetalhePage() {
                           "Chamado cancelado",
                         )
                       : executar(
-                          () => api(`/chamados/${id}/reabrir`, { method: "PATCH", body: { justificativa } }),
+                          () => api(`/chamados/${id}/reabrir`, { method: "PATCH", body: { causa, justificativa } }),
                           "Chamado reaberto",
                         )
                   }
@@ -241,6 +253,7 @@ export default function ChamadoDetalhePage() {
               <Info rotulo="Setor" valor={c.setor.nome} />
               <Info rotulo="Aberto em" valor={formatarDataHora(c.abertoEm)} />
               <Info rotulo="Prazo de resolução" valor={c.prazoResolucao ? formatarDataHora(c.prazoResolucao) : "—"} />
+              <ContagemSla chamado={c} />
               <div>
                 <p className="text-xs text-muted-foreground">Técnico</p>
                 {ehEquipe && !encerrado ? (

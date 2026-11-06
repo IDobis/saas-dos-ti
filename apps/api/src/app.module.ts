@@ -3,7 +3,9 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { ChamadosModule } from './chamados/chamados.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { ManutencaoModule } from './manutencao/manutencao.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ReincidenciaModule } from './reincidencia/reincidencia.module';
 import { SetoresModule } from './setores/setores.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 
@@ -16,6 +18,8 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     SetoresModule,
     UsuariosModule,
     DashboardModule,
+    ManutencaoModule,
+    ReincidenciaModule,
   ],
 })
 export class AppModule {}

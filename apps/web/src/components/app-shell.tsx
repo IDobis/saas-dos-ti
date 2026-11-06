@@ -19,6 +19,7 @@ import { Shuffle } from "@/components/animate-ui/icons/shuffle";
 import { Users } from "@/components/animate-ui/icons/users";
 import { X } from "@/components/animate-ui/icons/x";
 import { Logo } from "@/components/logo";
+import { BannerManutencao, BotaoManutencao, ManutencaoProvider } from "@/components/manutencao";
 import { SeletorMeses } from "@/components/seletor-meses";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -375,6 +376,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     .toUpperCase();
 
   return (
+    <ManutencaoProvider>
     <div className="flex min-h-screen bg-background">
       <Dialog open={confirmarSaida} onOpenChange={setConfirmarSaida}>
         <DialogContent className="sm:max-w-sm" showCloseButton={false}>
@@ -438,10 +440,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <Brand />
           </div>
           <div className="ml-auto flex items-center gap-2">
+            <BotaoManutencao />
             <DemoButton />
             <ThemeToggle />
           </div>
         </header>
+        <BannerManutencao />
 
         {aberto && (
             <>
@@ -470,5 +474,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </main>
       </div>
     </div>
+    </ManutencaoProvider>
   );
 }

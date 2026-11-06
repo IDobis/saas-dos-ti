@@ -10,6 +10,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Perfil } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 
 export interface UsuarioLogado {
   id: string;
@@ -40,6 +41,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
     private readonly reflector: Reflector,
+    private readonly prisma: PrismaService,
   ) {}
 
   async canActivate(ctx: ExecutionContext): Promise<boolean> {
@@ -54,13 +56,20 @@ export class JwtAuthGuard implements CanActivate {
     if (tipo !== 'Bearer' || !token) {
       throw new UnauthorizedException('Token ausente');
     }
+    let p: JwtPayload;
     try {
-      const p = await this.jwt.verifyAsync<JwtPayload>(token);
-      req.user = { id: p.sub, organizacaoId: p.org, perfil: p.perfil } satisfies UsuarioLogado;
-      return true;
+      p = await this.jwt.verifyAsync<JwtPayload>(token);
     } catch {
       throw new UnauthorizedException('Token inválido ou expirado');
     }
+    // O token vale 8h; perfil e "ativo" vêm do banco para que inativar ou rebaixar valha na hora.
+    const u = await this.prisma.usuario.findUnique({
+      where: { id: p.sub },
+      select: { organizacaoId: true, perfil: true, ativo: true },
+    });
+    if (!u?.ativo) throw new UnauthorizedException('Usuário inativo ou removido');
+    req.user = { id: p.sub, organizacaoId: u.organizacaoId, perfil: u.perfil } satisfies UsuarioLogado;
+    return true;
   }
 }
 

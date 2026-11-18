@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
 import { IndicadorReincidencia } from "@/components/reincidencia";
+import { BotaoRelatorio } from "@/components/relatorio";
 import { ChamadosEmRisco } from "@/components/sla";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
@@ -192,7 +193,7 @@ export default function DashboardPage() {
 
   return (
     <>
-      <PageHeader titulo="Painel" />
+      <PageHeader titulo="Painel" acao={<BotaoRelatorio />} />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <Effects

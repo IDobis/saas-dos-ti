@@ -77,7 +77,7 @@ export function IndicadorReincidencia({ versao = 0 }: { versao?: number }) {
             />
             <Tabela
               titulo="Por técnico"
-              linhas={dados.porTecnico.map((l) => ({ chave: l.tecnicoId, nome: l.nome, ...l }))}
+              linhas={dados.porTecnico.map((l) => ({ ...l, chave: l.tecnicoId }))}
             />
           </div>
         )}

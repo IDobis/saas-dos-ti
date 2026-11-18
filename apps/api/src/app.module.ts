@@ -5,8 +5,10 @@ import { AuthModule } from './auth/auth.module';
 import { ChamadosModule } from './chamados/chamados.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { ManutencaoModule } from './manutencao/manutencao.module';
+import { NotificacoesModule } from './notificacoes/notificacoes.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ReincidenciaModule } from './reincidencia/reincidencia.module';
+import { RelatorioModule } from './relatorio/relatorio.module';
 import { SetoresModule } from './setores/setores.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 
@@ -22,6 +24,8 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     DashboardModule,
     ManutencaoModule,
     ReincidenciaModule,
+    NotificacoesModule,
+    RelatorioModule,
   ],
 })
 export class AppModule {}

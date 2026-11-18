@@ -39,6 +39,19 @@ export class ChamadosController {
     return this.service.removerDemo(user);
   }
 
+  // declarada antes de ':id' para "fila" não ser lido como id
+  @Roles(Perfil.TECNICO, Perfil.ADMIN)
+  @Get('fila')
+  fila(@CurrentUser() user: UsuarioLogado) {
+    return this.service.fila(user);
+  }
+
+  @Roles(Perfil.TECNICO, Perfil.ADMIN)
+  @Post('pegar-proximo')
+  pegarProximo(@CurrentUser() user: UsuarioLogado) {
+    return this.service.pegarProximo(user);
+  }
+
   @Get(':id')
   buscar(@CurrentUser() user: UsuarioLogado, @Param('id', ParseUUIDPipe) id: string) {
     return this.service.buscar(user, id);

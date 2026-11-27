@@ -10,7 +10,7 @@ import { Plus } from "@/components/animate-ui/icons/plus";
 import { Search } from "@/components/animate-ui/icons/search";
 import { Marcador } from "@/components/marcador";
 import { SemaforoSla } from "@/components/sla";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -57,6 +57,17 @@ function valorOrdenacao(c: Chamado, coluna: Coluna): string | number {
   return new Date(c.abertoEm).getTime();
 }
 
+const CHAVE_POR_PAGINA = "chamados-por-pagina";
+
+function lerPorPagina() {
+  try {
+    const n = Number(localStorage.getItem(CHAVE_POR_PAGINA));
+    return Number.isInteger(n) && n >= 1 && n <= 300 ? n : 50;
+  } catch {
+    return 50; // armazenamento bloqueado pelo navegador
+  }
+}
+
 export default function ChamadosPage() {
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
@@ -66,6 +77,9 @@ export default function ChamadosPage() {
   const [lista, setLista] = useState<Chamado[] | null>(null);
   const [versaoDemo, setVersaoDemo] = useState(0);
   const [cargaInicial, setCargaInicial] = useState(false);
+  // o layout (app) só monta a página no cliente, então o localStorage já existe aqui
+  const [porPagina, setPorPagina] = useState(lerPorPagina);
+  const [pagina, setPagina] = useState(1);
   useModuleReady(cargaInicial);
   const agora = useAgora(60_000);
 
@@ -103,7 +117,14 @@ export default function ChamadosPage() {
     });
   }, [lista, coluna, direcao]);
 
+  // shortcut: paginação no navegador sobre os 300 que a API devolve; paginar no servidor se precisar ver além disso
+  const total = ordenada?.length ?? 0;
+  const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
+  const paginaAtual = Math.min(pagina, totalPaginas);
+  const inicio = (paginaAtual - 1) * porPagina;
+
   function ordenar(proxima: Coluna) {
+    setPagina(1);
     if (coluna === proxima) setDirecao((d) => (d === "asc" ? "desc" : "asc"));
     else {
       setColuna(proxima);
@@ -133,17 +154,17 @@ export default function ChamadosPage() {
             className="pl-9"
             placeholder="Buscar por título, descrição ou nº"
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
           />
         </div>
         </AnimateIcon>
-        <NativeSelect value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+        <NativeSelect value={status} onChange={(e) => { setStatus(e.target.value); setPagina(1); }} aria-label="Status">
           <option value="">Todos os status</option>
           {Object.entries(STATUS_LABEL).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
           ))}
         </NativeSelect>
-        <NativeSelect value={prioridade} onChange={(e) => setPrioridade(e.target.value)} aria-label="Prioridade">
+        <NativeSelect value={prioridade} onChange={(e) => { setPrioridade(e.target.value); setPagina(1); }} aria-label="Prioridade">
           <option value="">Todas as prioridades</option>
           {Object.entries(PRIORIDADE_LABEL).map(([k, v]) => (
             <option key={k} value={k}>{v}</option>
@@ -175,7 +196,7 @@ export default function ChamadosPage() {
                   </tr>
                 </thead>
                 <tbody>
-                    {ordenada.map((c) => (
+                    {ordenada.slice(inicio, inicio + porPagina).map((c) => (
                       <tr key={c.id} className="border-b last:border-0 hover:bg-muted/40">
                         <td className="px-4 py-3 font-mono text-muted-foreground">
                           <Link href={`/chamados/${c.id}`}>#{c.numero}</Link>
@@ -212,6 +233,36 @@ export default function ChamadosPage() {
           </>
         )}
       </Card>
+
+      {ordenada !== null && (
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+          <form
+            className="flex items-center gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const n = Number(new FormData(e.currentTarget).get("porPagina"));
+              setPorPagina(n);
+              try {
+                localStorage.setItem(CHAVE_POR_PAGINA, String(n));
+              } catch {
+                // sem armazenamento: vale só até sair da tela
+              }
+              setPagina(1);
+            }}
+          >
+            <label htmlFor="porPagina">Chamados por página</label>
+            <Input id="porPagina" name="porPagina" type="number" min={1} max={300} required defaultValue={porPagina} className="w-20" />
+            <Button type="submit" variant="outline">Aplicar</Button>
+          </form>
+          <div className="flex items-center gap-2">
+            <span aria-live="polite">
+              {total === 0 ? 0 : inicio + 1}–{Math.min(inicio + porPagina, total)} de {total}
+            </span>
+            <Button variant="outline" disabled={paginaAtual === 1} onClick={() => setPagina(paginaAtual - 1)}>Anterior</Button>
+            <Button variant="outline" disabled={paginaAtual === totalPaginas} onClick={() => setPagina(paginaAtual + 1)}>Próxima</Button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

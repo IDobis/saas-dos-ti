@@ -55,7 +55,7 @@ export default function FilaPage() {
     try {
       const c = await api<Chamado>("/chamados/pegar-proximo", { method: "POST" });
       toast.success(`Você pegou o #${c.numero}`);
-      router.push(`/chamados/${c.id}`);
+      router.push(`/chamados/${c.id}?de=fila`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Não foi possível pegar um chamado.");
       await carregar();
@@ -97,7 +97,7 @@ export default function FilaPage() {
                 <span className="w-5 shrink-0 text-right text-xs text-muted-foreground tabular-nums">{i + 1}</span>
                 <span className="w-12 shrink-0 font-mono text-muted-foreground">#{c.numero}</span>
                 <span className="grid min-w-0 flex-1 gap-0.5">
-                  <Link href={`/chamados/${c.id}`} className="truncate font-medium hover:underline">
+                  <Link href={`/chamados/${c.id}?de=fila`} className="truncate font-medium hover:underline">
                     {c.titulo}
                   </Link>
                   <span className="truncate text-xs text-muted-foreground">

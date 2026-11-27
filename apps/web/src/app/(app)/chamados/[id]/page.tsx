@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AnimateIcon } from "@animate-ui/react/icons";
@@ -46,6 +46,7 @@ const PROXIMOS: Record<Status, Status[]> = {
 
 export default function ChamadoDetalhePage() {
   const { id } = useParams<{ id: string }>();
+  const daFila = useSearchParams().get("de") === "fila";
   const { usuario, ehEquipe } = useAuth();
   const [c, setC] = useState<ChamadoDetalhe | null>(null);
   const [tecnicos, setTecnicos] = useState<UsuarioLista[]>([]);
@@ -118,8 +119,8 @@ export default function ChamadoDetalhePage() {
   return (
     <div>
       <AnimateIcon animateOnHover asChild>
-      <Link href="/chamados" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="size-4" /> Chamados
+      <Link href={daFila ? "/fila" : "/chamados"} className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="size-4" /> {daFila ? "Minha vez" : "Chamados"}
       </Link>
       </AnimateIcon>
 

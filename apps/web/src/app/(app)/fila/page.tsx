@@ -21,6 +21,7 @@ import {
 } from "@/lib/chamados";
 import { useModuleReady } from "@/lib/module-ready";
 import { useAgora } from "@/lib/sla";
+import { useChamadosAoVivo } from "@/lib/tempo-real";
 
 interface Fila {
   /** Já vem ordenada pela API: prazo de SLA, depois prioridade. */
@@ -41,7 +42,8 @@ export default function FilaPage() {
         .then(setFila)
         .catch((e: Error) => {
           toast.error(e.message);
-          setFila({ meus: [], semDono: 0 });
+          // falha numa atualização não apaga a fila já exibida
+          setFila((f) => f ?? { meus: [], semDono: 0 });
         }),
     [],
   );
@@ -49,6 +51,7 @@ export default function FilaPage() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+  useChamadosAoVivo(carregar);
 
   async function pegarProximo() {
     setPegando(true);

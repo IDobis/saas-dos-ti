@@ -21,6 +21,7 @@ import { NativeSelect } from "@/components/native-select";
 import { api } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { useModuleReady } from "@/lib/module-ready";
+import { useChamadosAoVivo } from "@/lib/tempo-real";
 import {
   CATEGORIA_LABEL,
   PRIORIDADE_LABEL,
@@ -71,6 +72,7 @@ export default function ChamadoDetalhePage() {
   useEffect(() => {
     carregar();
   }, [carregar]);
+  useChamadosAoVivo(carregar);
 
   useEffect(() => {
     if (!ehEquipe) return;

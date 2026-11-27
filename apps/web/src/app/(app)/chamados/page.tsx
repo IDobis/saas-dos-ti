@@ -19,6 +19,7 @@ import { PageHeader } from "@/components/page-header";
 import { api } from "@/lib/api";
 import { useModuleReady } from "@/lib/module-ready";
 import { SLA_ORDEM, situacaoSla, useAgora } from "@/lib/sla";
+import { useChamadosAoVivo } from "@/lib/tempo-real";
 import { cn } from "@/lib/utils";
 import {
   PRIORIDADE_LABEL,
@@ -75,7 +76,7 @@ export default function ChamadosPage() {
   const [coluna, setColuna] = useState<Coluna>("aberto");
   const [direcao, setDirecao] = useState<"asc" | "desc">("desc");
   const [lista, setLista] = useState<Chamado[] | null>(null);
-  const [versaoDemo, setVersaoDemo] = useState(0);
+  const [versao, setVersao] = useState(0);
   const [cargaInicial, setCargaInicial] = useState(false);
   // o layout (app) só monta a página no cliente, então o localStorage já existe aqui
   const [porPagina, setPorPagina] = useState(lerPorPagina);
@@ -84,17 +85,21 @@ export default function ChamadosPage() {
   const agora = useAgora(60_000);
 
   useEffect(() => {
-    const atualizar = () => setVersaoDemo((v) => v + 1);
+    const atualizar = () => setVersao((v) => v + 1);
     window.addEventListener("demo-alterada", atualizar);
     return () => window.removeEventListener("demo-alterada", atualizar);
   }, []);
 
+  useChamadosAoVivo(() => setVersao((v) => v + 1));
+
   useEffect(() => {
+    let atual = true; // resposta antiga não sobrescreve a mais nova
     const t = setTimeout(() => {
       api<Chamado[]>("/chamados", {
         query: { busca: busca.trim() || undefined, status: status || undefined, prioridade: prioridade || undefined },
       })
         .then((dados) => {
+          if (!atual) return;
           setLista(dados);
           setCargaInicial(true);
         })
@@ -103,8 +108,11 @@ export default function ChamadosPage() {
           setCargaInicial(true);
         });
     }, busca ? 300 : 0);
-    return () => clearTimeout(t);
-  }, [busca, status, prioridade, versaoDemo]);
+    return () => {
+      atual = false;
+      clearTimeout(t);
+    };
+  }, [busca, status, prioridade, versao]);
 
   const ordenada = useMemo(() => {
     if (!lista) return null;

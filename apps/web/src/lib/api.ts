@@ -1,4 +1,4 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
+export const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
 const TOKEN_KEY = "saas-ti:token";
 
 export class ApiError extends Error {

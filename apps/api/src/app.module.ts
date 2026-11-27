@@ -11,6 +11,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ReincidenciaModule } from './reincidencia/reincidencia.module';
 import { RelatorioModule } from './relatorio/relatorio.module';
 import { SetoresModule } from './setores/setores.module';
+import { TempoRealModule } from './tempo-real/tempo-real.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 
 @Module({
@@ -28,6 +29,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     NotificacoesModule,
     RelatorioModule,
     LogModule,
+    TempoRealModule,
   ],
 })
 export class AppModule {}

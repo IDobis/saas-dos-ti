@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type KeyboardEvent } from "react";
 import { toast } from "sonner";
 import { AnimateIcon } from "@animate-ui/react/icons";
 import { ArrowLeft } from "@/components/animate-ui/icons/arrow-left";
@@ -45,6 +45,15 @@ const PROXIMOS: Record<Status, Status[]> = {
   FECHADO: [],
   CANCELADO: [],
 };
+
+/** Enter envia; Shift+Enter pula linha. Ignora Enter segurado e o que só confirma acentuação (IME). */
+function aoEnter(enviar: (campo: HTMLTextAreaElement) => void) {
+  return (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+    e.preventDefault();
+    if (!e.repeat) enviar(e.currentTarget);
+  };
+}
 
 export default function ChamadoDetalhePage() {
   const { id } = useParams<{ id: string }>();
@@ -96,6 +105,11 @@ export default function ChamadoDetalhePage() {
     } finally {
       setOcupado(false);
     }
+  }
+
+  function avaliar() {
+    if (ocupado || nota === 0) return;
+    executar(() => api(`/chamados/${id}/avaliacao`, { method: "POST", body: { nota, comentario: comentario || undefined } }), "Obrigado pela avaliação!");
   }
 
   if (!c || !usuario) {
@@ -230,6 +244,7 @@ export default function ChamadoDetalhePage() {
                   className="mt-6 grid gap-3 border-t pt-4"
                   onSubmit={(e) => {
                     e.preventDefault();
+                    if (ocupado || !followUp.trim()) return; // o Enter não passa pelo botão desabilitado
                     executar(async () => {
                       await api(`/chamados/${id}/followups`, { method: "POST", body: { conteudo: followUp, interno } });
                       setFollowUp("");
@@ -237,7 +252,7 @@ export default function ChamadoDetalhePage() {
                     }, "Comentário adicionado");
                   }}
                 >
-                  <Textarea rows={3} placeholder="Escreva uma atualização… Use @nome para avisar alguém." value={followUp} onChange={(e) => setFollowUp(e.target.value)} />
+                  <Textarea rows={3} placeholder="Escreva uma atualização… Use @nome para avisar alguém." value={followUp} onChange={(e) => setFollowUp(e.target.value)} onKeyDown={aoEnter((campo) => campo.form?.requestSubmit())} />
                   {mencionaveis.length > 0 && (
                     <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                       Avisar:
@@ -327,11 +342,11 @@ export default function ChamadoDetalhePage() {
                 ) : (
                   <>
                     <Estrelas valor={nota} onChange={setNota} />
-                    <Textarea rows={2} placeholder="Comentário (opcional)" value={comentario} onChange={(e) => setComentario(e.target.value)} />
+                    <Textarea rows={2} placeholder="Comentário (opcional)" value={comentario} onChange={(e) => setComentario(e.target.value)} onKeyDown={aoEnter(avaliar)} />
                     <Button
                       size="sm"
                       disabled={ocupado || nota === 0}
-                      onClick={() => executar(() => api(`/chamados/${id}/avaliacao`, { method: "POST", body: { nota, comentario: comentario || undefined } }), "Obrigado pela avaliação!")}
+                      onClick={avaliar}
                     >
                       Enviar avaliação
                     </Button>

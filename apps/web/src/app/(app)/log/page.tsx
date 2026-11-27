@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { PageHeader } from "@/components/page-header";
+import { Paginacao, usePorPagina } from "@/components/paginacao";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -23,9 +24,11 @@ interface Log {
 export default function LogPage() {
   const router = useRouter();
   const { usuario } = useAuth();
-  const [logs, setLogs] = useState<Log[] | null>(null);
+  const [dados, setDados] = useState<{ itens: Log[]; total: number } | null>(null);
   const [busca, setBusca] = useState("");
-  useModuleReady(!!logs);
+  const [pagina, setPagina] = useState(1);
+  const [porPagina, setPorPagina] = usePorPagina("log-por-pagina");
+  useModuleReady(!!dados);
 
   useEffect(() => {
     if (!usuario) return;
@@ -33,18 +36,25 @@ export default function LogPage() {
       router.replace("/chamados"); // RN09
       return;
     }
-    api<Log[]>("/log")
-      .then(setLogs)
-      .catch((e: Error) => {
-        toast.error(e.message);
-        setLogs([]);
-      });
-  }, [usuario, router]);
-
-  const termo = busca.trim().toLowerCase();
-  const visiveis = (logs ?? []).filter(
-    (l) => !termo || [l.acao, l.detalhe, l.usuario?.nome].some((t) => t?.toLowerCase().includes(termo)),
-  );
+    let atual = true; // resposta antiga não sobrescreve a mais nova
+    const t = setTimeout(() => {
+      api<{ itens: Log[]; total: number }>("/log", {
+        query: { pagina: String(pagina), porPagina: String(porPagina), busca: busca.trim() || undefined },
+      })
+        .then((d) => {
+          if (atual) setDados(d);
+        })
+        .catch((e: Error) => {
+          if (!atual) return;
+          toast.error(e.message);
+          setDados((d) => d ?? { itens: [], total: 0 });
+        });
+    }, busca ? 300 : 0);
+    return () => {
+      atual = false;
+      clearTimeout(t);
+    };
+  }, [usuario, router, pagina, porPagina, busca]);
 
   return (
     <>
@@ -57,12 +67,12 @@ export default function LogPage() {
             placeholder="Buscar ação, usuário ou chamado"
             aria-label="Buscar no log"
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(e) => { setBusca(e.target.value); setPagina(1); }}
           />
         }
       />
       <Card className="gap-0 overflow-hidden p-0">
-        {logs && visiveis.length === 0 ? (
+        {dados && dados.itens.length === 0 ? (
           <p className="p-10 text-center text-sm text-muted-foreground">Nenhum registro encontrado.</p>
         ) : (
           <Table>
@@ -75,12 +85,12 @@ export default function LogPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {visiveis.map((l) => (
+              {dados?.itens.map((l) => (
                 <TableRow key={l.id}>
                   <TableCell className="text-muted-foreground tabular-nums">{formatarDataHora(l.criadoEm)}</TableCell>
                   <TableCell>{l.usuario?.nome ?? "—"}</TableCell>
                   <TableCell className="font-medium">{l.acao}</TableCell>
-                  <TableCell className="max-w-0 truncate text-muted-foreground" title={l.detalhe ?? undefined}>
+                  <TableCell className="min-w-64 whitespace-normal break-words text-muted-foreground">
                     {l.detalhe ?? "—"}
                   </TableCell>
                 </TableRow>
@@ -89,6 +99,16 @@ export default function LogPage() {
           </Table>
         )}
       </Card>
+      {dados && (
+        <Paginacao
+          rotulo="Registros por página"
+          total={dados.total}
+          pagina={pagina}
+          porPagina={porPagina}
+          onPagina={setPagina}
+          onPorPagina={setPorPagina}
+        />
+      )}
     </>
   );
 }

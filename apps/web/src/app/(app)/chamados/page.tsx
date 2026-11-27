@@ -10,12 +10,13 @@ import { Plus } from "@/components/animate-ui/icons/plus";
 import { Search } from "@/components/animate-ui/icons/search";
 import { Marcador } from "@/components/marcador";
 import { SemaforoSla } from "@/components/sla";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NativeSelect } from "@/components/native-select";
 import { PageHeader } from "@/components/page-header";
+import { Paginacao, usePorPagina } from "@/components/paginacao";
 import { api } from "@/lib/api";
 import { useModuleReady } from "@/lib/module-ready";
 import { SLA_ORDEM, situacaoSla, useAgora } from "@/lib/sla";
@@ -58,17 +59,6 @@ function valorOrdenacao(c: Chamado, coluna: Coluna): string | number {
   return new Date(c.abertoEm).getTime();
 }
 
-const CHAVE_POR_PAGINA = "chamados-por-pagina";
-
-function lerPorPagina() {
-  try {
-    const n = Number(localStorage.getItem(CHAVE_POR_PAGINA));
-    return Number.isInteger(n) && n >= 1 && n <= 300 ? n : 50;
-  } catch {
-    return 50; // armazenamento bloqueado pelo navegador
-  }
-}
-
 export default function ChamadosPage() {
   const [busca, setBusca] = useState("");
   const [status, setStatus] = useState("");
@@ -78,8 +68,7 @@ export default function ChamadosPage() {
   const [lista, setLista] = useState<Chamado[] | null>(null);
   const [versao, setVersao] = useState(0);
   const [cargaInicial, setCargaInicial] = useState(false);
-  // o layout (app) só monta a página no cliente, então o localStorage já existe aqui
-  const [porPagina, setPorPagina] = useState(lerPorPagina);
+  const [porPagina, setPorPagina] = usePorPagina("chamados-por-pagina");
   const [pagina, setPagina] = useState(1);
   useModuleReady(cargaInicial);
   const agora = useAgora(60_000);
@@ -243,33 +232,14 @@ export default function ChamadosPage() {
       </Card>
 
       {ordenada !== null && (
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
-          <form
-            className="flex items-center gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const n = Number(new FormData(e.currentTarget).get("porPagina"));
-              setPorPagina(n);
-              try {
-                localStorage.setItem(CHAVE_POR_PAGINA, String(n));
-              } catch {
-                // sem armazenamento: vale só até sair da tela
-              }
-              setPagina(1);
-            }}
-          >
-            <label htmlFor="porPagina">Chamados por página</label>
-            <Input id="porPagina" name="porPagina" type="number" min={1} max={300} required defaultValue={porPagina} className="w-20" />
-            <Button type="submit" variant="outline">Aplicar</Button>
-          </form>
-          <div className="flex items-center gap-2">
-            <span aria-live="polite">
-              {total === 0 ? 0 : inicio + 1}–{Math.min(inicio + porPagina, total)} de {total}
-            </span>
-            <Button variant="outline" disabled={paginaAtual === 1} onClick={() => setPagina(paginaAtual - 1)}>Anterior</Button>
-            <Button variant="outline" disabled={paginaAtual === totalPaginas} onClick={() => setPagina(paginaAtual + 1)}>Próxima</Button>
-          </div>
-        </div>
+        <Paginacao
+          rotulo="Chamados por página"
+          total={total}
+          pagina={paginaAtual}
+          porPagina={porPagina}
+          onPagina={setPagina}
+          onPorPagina={setPorPagina}
+        />
       )}
     </>
   );

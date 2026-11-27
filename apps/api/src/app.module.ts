@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { ChamadosModule } from './chamados/chamados.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { LogModule } from './log/log.module';
 import { ManutencaoModule } from './manutencao/manutencao.module';
 import { NotificacoesModule } from './notificacoes/notificacoes.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -26,6 +27,7 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     ReincidenciaModule,
     NotificacoesModule,
     RelatorioModule,
+    LogModule,
   ],
 })
 export class AppModule {}

@@ -17,6 +17,7 @@ import { LayoutDashboard } from "@/components/animate-ui/icons/layout-dashboard"
 import { LogOut } from "@/components/animate-ui/icons/log-out";
 import { Menu } from "@/components/animate-ui/icons/menu";
 import { Shuffle } from "@/components/animate-ui/icons/shuffle";
+import { Eye } from "@/components/animate-ui/icons/eye";
 import { Users } from "@/components/animate-ui/icons/users";
 import { X } from "@/components/animate-ui/icons/x";
 import { Logo } from "@/components/logo";
@@ -44,6 +45,7 @@ const NAV: { href: string; label: string; icon: ComponentType<{ className?: stri
   { href: "/chamados", label: "Chamados", icon: ClipboardList },
   { href: "/chamados/novo", label: "Novo chamado", icon: CirclePlus },
   { href: "/cadastros", label: "Cadastros", icon: Users, perfis: ["ADMIN"] },
+  { href: "/log", label: "Log", icon: Eye, perfis: ["ADMIN"] },
 ];
 
 function NavLinks({ onNavigate, grupo }: { onNavigate?: () => void; grupo: string }) {

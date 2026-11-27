@@ -72,6 +72,7 @@ model Organizacao {
   equipamentos  Equipamento[]
   chamados      Chamado[]
   slas          Sla[]
+  logs          Log[]
 }
 
 // ---------- Cadastros (RF01-RF04) ----------
@@ -112,6 +113,7 @@ model Usuario {
   historicos           HistoricoChamado[]
   anexos               Anexo[]
   notificacoes         Notificacao[]
+  logs                 Log[]
 
   @@unique([organizacaoId, email])
 }
@@ -240,4 +242,19 @@ model Avaliacao {
   criadoEm  DateTime @default(now())
 
   chamado Chamado @relation(fields: [chamadoId], references: [id])
+}
+
+// Registro de auditoria: toda ação que altera dados (menu Log, só admin)
+model Log {
+  id             String   @id @default(uuid())
+  organizacaoId  String
+  usuarioId      String?
+  acao           String
+  detalhe        String?
+  criadoEm       DateTime @default(now())
+
+  organizacao  Organizacao @relation(fields: [organizacaoId], references: [id])
+  usuario      Usuario?    @relation(fields: [usuarioId], references: [id])
+
+  @@index([organizacaoId, criadoEm])
 }

@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AnimateIcon } from "@animate-ui/react/icons";
 import { ArrowLeft } from "@/components/animate-ui/icons/arrow-left";
+import { Check } from "@/components/animate-ui/icons/check";
 import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
 import { Lock } from "@/components/animate-ui/icons/lock";
 import { Star } from "@/components/animate-ui/icons/star";
@@ -252,12 +253,26 @@ export default function ChamadoDetalhePage() {
                       ))}
                     </div>
                   )}
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     {ehEquipe ? (
-                      <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <input type="checkbox" checked={interno} onChange={(e) => setInterno(e.target.checked)} />
-                        Nota interna (invisível ao solicitante)
-                      </label>
+                      <AnimateIcon animateOnHover asChild>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          aria-pressed={interno}
+                          onClick={() => setInterno((v) => !v)}
+                          className={cn(
+                            "h-auto min-h-7 whitespace-normal py-1 text-left",
+                            interno
+                              ? "border-amber-500/60 bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 hover:text-amber-700 dark:border-amber-400/50 dark:bg-amber-400/10 dark:text-amber-400 dark:hover:bg-amber-400/20 dark:hover:text-amber-400"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {interno ? <Check className="size-3.5" /> : <Lock className="size-3.5" />}
+                          Nota interna (invisível ao solicitante)
+                        </Button>
+                      </AnimateIcon>
                     ) : <span />}
                     <Button type="submit" size="sm" disabled={ocupado || !followUp.trim()}>Comentar</Button>
                   </div>

@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { AnimateIcon } from "@animate-ui/react/icons";
 import { Effect } from "@animate-ui/react/primitives/effects/effect";
 import { LoaderCircle } from "@/components/animate-ui/icons/loader-circle";
+import { CircleCheck } from "@/components/animate-ui/icons/circle-check";
 import { CirclePlus } from "@/components/animate-ui/icons/circle-plus";
 import { ModuleReadyProvider, useModuleReadyState } from "@/lib/module-ready";
 import { ClipboardList } from "@/components/animate-ui/icons/clipboard-list";
@@ -20,6 +21,7 @@ import { Users } from "@/components/animate-ui/icons/users";
 import { X } from "@/components/animate-ui/icons/x";
 import { Logo } from "@/components/logo";
 import { BannerManutencao, BotaoManutencao, ManutencaoProvider } from "@/components/manutencao";
+import { SinoNotificacoes } from "@/components/notificacoes";
 import { SeletorMeses } from "@/components/seletor-meses";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -38,6 +40,7 @@ import { cn } from "@/lib/utils";
 
 const NAV: { href: string; label: string; icon: ComponentType<{ className?: string }>; perfis?: Perfil[] }[] = [
   { href: "/dashboard", label: "Painel", icon: LayoutDashboard, perfis: ["TECNICO", "ADMIN"] },
+  { href: "/fila", label: "Minha vez", icon: CircleCheck, perfis: ["TECNICO", "ADMIN"] },
   { href: "/chamados", label: "Chamados", icon: ClipboardList },
   { href: "/chamados/novo", label: "Novo chamado", icon: CirclePlus },
   { href: "/cadastros", label: "Cadastros", icon: Users, perfis: ["ADMIN"] },
@@ -443,6 +446,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="ml-auto flex items-center gap-2">
             <BotaoManutencao />
             <DemoButton />
+            <SinoNotificacoes />
             <ThemeToggle />
           </div>
         </header>

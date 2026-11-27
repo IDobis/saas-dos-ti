@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { CausaReabertura, Categoria, Perfil, Prioridade, Prisma, StatusChamado, TipoHistorico } from '@prisma/client';
 import { UsuarioLogado } from '../common/auth';
+import { mencionados } from '../notificacoes/notificacoes.module';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   AtribuirDto,
@@ -30,6 +31,18 @@ const TRANSICOES: Record<StatusChamado, StatusChamado[]> = {
   FECHADO: [],
   CANCELADO: [],
 };
+
+const EM_ABERTO: StatusChamado[] = [ABERTO, EM_ANDAMENTO, AGUARDANDO];
+
+/**
+ * Urgência da fila: prazo de SLA mais próximo primeiro (sem prazo por último),
+ * depois a prioridade mais alta (o enum vai de BAIXA a CRITICA) e, no empate, o mais antigo.
+ */
+const ORDEM_URGENCIA: Prisma.ChamadoOrderByWithRelationInput[] = [
+  { prazoResolucao: { sort: 'asc', nulls: 'last' } },
+  { prioridade: 'desc' },
+  { abertoEm: 'asc' },
+];
 
 const CAUSA_LABEL: Record<CausaReabertura, string> = {
   VOLTOU_A_FALHAR: 'voltou a falhar',
@@ -207,6 +220,59 @@ export class ChamadosService {
     });
   }
 
+  // ---------- fila "minha vez" ----------
+
+  /** Chamados do técnico ainda em aberto, do mais urgente ao menos urgente. */
+  async fila(user: UsuarioLogado) {
+    const [meus, semDono] = await Promise.all([
+      this.prisma.chamado.findMany({
+        where: { organizacaoId: user.organizacaoId, tecnicoId: user.id, status: { in: EM_ABERTO } },
+        orderBy: ORDEM_URGENCIA,
+        include: this.resumo,
+      }),
+      this.prisma.chamado.count({
+        where: { organizacaoId: user.organizacaoId, tecnicoId: null, status: { in: EM_ABERTO } },
+      }),
+    ]);
+    return { meus, semDono };
+  }
+
+  /** Atribui ao técnico o chamado sem dono mais urgente (mesma ordem da fila). */
+  async pegarProximo(user: UsuarioLogado) {
+    const tecnico = await this.prisma.usuario.findUniqueOrThrow({ where: { id: user.id }, select: { nome: true } });
+    // Dois técnicos podem clicar juntos: o updateMany só pega se ainda estiver sem dono;
+    // quem perder a disputa tenta o próximo da fila.
+    for (let tentativa = 0; tentativa < 5; tentativa++) {
+      const proximo = await this.prisma.chamado.findFirst({
+        where: { organizacaoId: user.organizacaoId, tecnicoId: null, status: { in: EM_ABERTO } },
+        orderBy: ORDEM_URGENCIA,
+        select: { id: true },
+      });
+      if (!proximo) throw new NotFoundException('Nenhum chamado sem dono na fila');
+
+      const { count } = await this.prisma.chamado.updateMany({
+        where: { id: proximo.id, tecnicoId: null },
+        data: { tecnicoId: user.id },
+      });
+      if (count === 0) continue;
+
+      return this.prisma.chamado.update({
+        where: { id: proximo.id },
+        data: {
+          historico: {
+            create: {
+              autorId: user.id,
+              tipo: TipoHistorico.ATRIBUICAO,
+              conteudo: `Pego da fila por ${tecnico.nome}`,
+            },
+          },
+        },
+        include: this.resumo,
+      });
+    }
+    throw new ConflictException('A fila mudou enquanto você pegava um chamado. Tente de novo.');
+  }
+
   // ---------- status (RF09, RN03, RN04, RN06, RN10) ----------
 
   async mudarStatus(user: UsuarioLogado, id: string, dto: MudarStatusDto) {
@@ -289,7 +355,7 @@ export class ChamadosService {
     const chamado = await this.carregar(user, id);
     this.garantirAcesso(user, chamado.solicitanteId);
     this.garantirEditavel(chamado.status);
-    return this.prisma.historicoChamado.create({
+    const historico = await this.prisma.historicoChamado.create({
       data: {
         chamadoId: id,
         autorId: user.id,
@@ -299,6 +365,24 @@ export class ChamadosService {
       },
       include: { autor: { select: { id: true, nome: true, perfil: true } } },
     });
+
+    // @nome avisa o solicitante ou o técnico do chamado (nunca o próprio autor).
+    // Em nota interna o solicitante não é avisado, porque não pode vê-la (RN12).
+    const ids = [chamado.solicitanteId, chamado.tecnicoId].filter((x): x is string => !!x && x !== user.id);
+    const candidatos = await this.prisma.usuario.findMany({
+      where: { id: { in: ids }, ativo: true },
+      select: { id: true, nome: true, perfil: true },
+    });
+    const alvos = mencionados(
+      historico.conteudo ?? '',
+      candidatos.filter((u) => !historico.interno || u.perfil !== Perfil.SOLICITANTE),
+    );
+    if (alvos.length) {
+      await this.prisma.notificacao.createMany({
+        data: alvos.map((u) => ({ usuarioId: u.id, historicoId: historico.id })),
+      });
+    }
+    return historico;
   }
 
   // ---------- avaliação (RF10, RN07) ----------

@@ -105,6 +105,10 @@ export default function ChamadoDetalhePage() {
   const podeAvaliar = souSolicitante && !c.avaliacao && (c.status === "RESOLVIDO" || c.status === "FECHADO");
   const podeReabrir = ehEquipe && (c.status === "RESOLVIDO" || c.status === "FECHADO");
   const podeComentar = ehEquipe ? !encerrado : !encerrado && c.status !== "RESOLVIDO";
+  // Quem a API avisa por @nome: solicitante e técnico (nota interna não avisa o solicitante)
+  const mencionaveis = [interno ? null : c.solicitante, c.tecnico].filter(
+    (p): p is NonNullable<typeof p> => !!p && p.id !== usuario.id,
+  );
 
   const mudarStatus = (status: Status) => {
     if (status === "CANCELADO") return setAcaoJust("cancelar");
@@ -229,7 +233,22 @@ export default function ChamadoDetalhePage() {
                     }, "Comentário adicionado");
                   }}
                 >
-                  <Textarea rows={3} placeholder="Escreva uma atualização…" value={followUp} onChange={(e) => setFollowUp(e.target.value)} />
+                  <Textarea rows={3} placeholder="Escreva uma atualização… Use @nome para avisar alguém." value={followUp} onChange={(e) => setFollowUp(e.target.value)} />
+                  {mencionaveis.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      Avisar:
+                      {mencionaveis.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          className="rounded-md border px-2 py-0.5 text-foreground transition-colors hover:bg-muted"
+                          onClick={() => setFollowUp((t) => `${t}${t && !/\s$/.test(t) ? " " : ""}@${p.nome} `)}
+                        >
+                          @{p.nome}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <div className="flex items-center justify-between gap-3">
                     {ehEquipe ? (
                       <label className="flex items-center gap-2 text-sm text-muted-foreground">

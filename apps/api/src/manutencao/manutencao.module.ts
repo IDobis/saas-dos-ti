@@ -19,7 +19,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 /** Rotas que continuam aceitando escrita durante a manutenção. */
 const LIBERADO = 'liberadoEmManutencao';
-const LiberadoEmManutencao = () => SetMetadata(LIBERADO, true);
+export const LiberadoEmManutencao = () => SetMetadata(LIBERADO, true);
 
 class EntrarManutencaoDto {
   @IsString() @MinLength(3) @MaxLength(300)

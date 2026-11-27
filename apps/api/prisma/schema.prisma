@@ -111,6 +111,7 @@ model Usuario {
   equipamentos         Equipamento[]
   historicos           HistoricoChamado[]
   anexos               Anexo[]
+  notificacoes         Notificacao[]
 
   @@unique([organizacaoId, email])
 }
@@ -197,7 +198,24 @@ model HistoricoChamado {
   chamado Chamado @relation(fields: [chamadoId], references: [id], onDelete: Cascade)
   autor   Usuario @relation(fields: [autorId], references: [id])
 
+  notificacoes Notificacao[]
+
   @@index([chamadoId, criadoEm])
+}
+
+// Aviso de menção (@nome) em um follow-up; o sino mostra os não lidos
+model Notificacao {
+  id           String    @id @default(uuid())
+  usuarioId    String // quem foi mencionado
+  historicoId  String // o follow-up com a menção
+  lidaEm       DateTime?
+  criadoEm     DateTime  @default(now())
+
+  usuario   Usuario          @relation(fields: [usuarioId], references: [id])
+  historico HistoricoChamado @relation(fields: [historicoId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, historicoId])
+  @@index([usuarioId, lidaEm])
 }
 
 model Anexo {
